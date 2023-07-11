@@ -1,0 +1,184 @@
+
+
+.auth-form-container{
+    margin-top:6.25rem;
+    margin-bottom: 10.3125rem;
+}
+.form-card{
+    margin-top: 2.8125rem;
+    margin-left: 13.6875rem;
+    margin-right: 23.6875rem;
+    margin-bottom: 10.3125rem;
+    width: 38rem;
+    height: 26.25rem;
+}
+
+.text-styles{
+  font-size: 16px;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 400;
+  color: #868E96;
+}
+
+.heading-styles{
+  font-size: 20px;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  color: #007BFF;
+}
+
+.input-field {
+  color:#212529;
+}
+
+
+/* nav bar */
+
+.navbar-heading {
+  font-size: 16px;
+font-family: Inter;
+font-style: normal;
+font-weight: 700;
+color: #343A40;
+}
+
+/* product card */
+
+.product-card {
+  width:18rem
+}
+
+.product-card-img{
+  width: 100%;
+  height: 230px;
+  object-fit: fit;
+}
+
+.table-product-img{
+  height: 29.695px;
+    width: 29.695px;
+}
+
+/* cart page */
+
+.cart-heading{
+    font-size: 24px;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 500;
+    color: #007BFF;
+    padding-top: 6px;
+}
+
+
+.heading-container{
+    margin-bottom: 1.2rem;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #f7f5f5;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    color: #495057;
+  }
+  .header-cell {
+    background-color: #E9ECEF !important;
+    font-weight: 500;
+    font-size: "16px";
+    font-family: "Inter";
+    color:#212529;
+  }
+  
+  .total-container  {
+    margin-top: 1%;
+  }
+  .total-container > div{
+    display: flex ;
+    justify-content: end;
+  }
+  .total-container p {
+    font-size: 14px;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    margin-right: 0.75rem;
+  }
+  .custom-button {
+    width: 16%;
+  }
+
+  .full-screen-modal {
+    height: 100vh;
+    max-width: 75%;
+    right: 0;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+  }
+  
+  .full-screen-modal.show {
+    transform: translateX(2);
+  }
+  
+  
+
+  /* Drawer comp */
+
+  
+
+  .drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow-x: hidden;
+    /* transition: width 0.3s ease-out; */
+    z-index: 9999;
+  }
+  
+  .drawer.open {
+    width: 100%;
+  }
+  
+  .drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* backdrop-filter: blur(5px); */
+    z-index: 9998;
+  }
+  
+  .drawer-content {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 80%;
+    max-width: 70em;
+    background-color: #fff;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+    z-index: 9999;
+  }
+  
+  .drawer.open .drawer-content {
+    transform: translateX(0);
+  }
+  
+  .drawer-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
