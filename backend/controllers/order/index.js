@@ -1,4 +1,5 @@
 import Order from '../../models/order/index.js';
+import Product from '../../models/product/index.js';
 
 // Controller functions
 export const getAllOrders = async (req, res) => {
@@ -27,6 +28,13 @@ export const getOrderById = async (req, res) => {
 export const createOrder = async (req, res) => {
   const { user, products, totalAmount, status } = req.body;
   try {
+
+    const productIds = products.map((product) => product.product);
+    const existingProducts = await Product.find({ _id: { $in: productIds } });
+    if (existingProducts.length !== productIds.length) {
+      return res.status(400).json({ error: 'One or more products do not exist.' });
+    }
+    
     const newOrder = new Order({
       user,
       products,

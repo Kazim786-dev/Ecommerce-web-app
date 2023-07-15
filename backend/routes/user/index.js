@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import {verifyuserloggedin} from '../../middleware/auth.js'
 
 const router = Router();
 
@@ -7,14 +6,10 @@ const router = Router();
 import {
     getAllUsers,
     getUserById,
-    createUser,
+    // createUser,
     updateUser,
     deleteUser
   } from '../../controllers/user/index.js';
-import {
-  Signup,
-  Signin
-} from '../../controllers/auth/index.js'  
 
 // User routes
 router.get('/', getAllUsers);

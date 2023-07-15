@@ -6,15 +6,15 @@ import {
     updateProduct, 
     deleteProduct 
 } from '../../controllers/product/index.js';
-import {verifyuserloggedin} from '../../middleware/auth.js'
+import authMiddleware from '../../middleware/auth.js'
 
 const router = Router();
 
 // Product routes
 router.get('/', getAllProducts);
-router.get('/:id', getProductById);
-router.post('/',verifyuserloggedin, createProduct);
-router.put('/:id',verifyuserloggedin, updateProduct);
-router.delete('/:id',verifyuserloggedin, deleteProduct);
+router.get('/:id',authMiddleware, getProductById);
+router.post('/',authMiddleware, createProduct);
+router.put('/:id',authMiddleware, updateProduct);
+router.delete('/:id',authMiddleware, deleteProduct);
 
 export default router;

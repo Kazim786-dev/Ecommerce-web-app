@@ -1,4 +1,5 @@
 import Product from '../../models/product/index.js';
+import Category from '../../models/category/index.js';
 
 // Controller functions
 export const getAllProducts = async (req, res) => {
@@ -27,6 +28,12 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   const { name, description, price, category } = req.body;
   try {
+    // Check if the specified category exists
+    const existingCategory = await Category.findById(category);
+    if (!existingCategory) {
+      return res.status(404).json({ error: 'Category not found.' });
+    }
+
     const newProduct = new Product({
       name,
       description,
@@ -45,13 +52,18 @@ export const createProduct = async (req, res) => {
   }
 };
 
-
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
   const { name, description, price, category } = req.body;
   try {
     const product = await Product.findById(id);
     if (product) {
+
+      const existingCategory = await Category.findById(category);
+      if (!existingCategory) {
+        return res.status(404).json({ error: 'Category not found.' });
+      }
+
       product.name = name || product.name;
       product.description = description || product.description;
       product.price = price || product.price;
