@@ -84,3 +84,40 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while deleting the user.' });
   }
 };
+
+export const verifyMail = async (req, res) => {
+  const { email } = req.body;
+
+  // Logic to verify email
+  try {
+    const user = await User.findOne({email:email})
+    if(!user){
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'Email verification successful' });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while verifying email' });
+  }
+};
+
+export const updatePassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    // Find the user in the database based on the user's ID
+    const user = await User.findOne({email:email})  
+    // wait to return promise is necessary otherwise condition will always be true
+    if(!user){
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update the user's password
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while updating password. '+ error });
+  }
+};

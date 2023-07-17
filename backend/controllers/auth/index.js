@@ -25,7 +25,11 @@ export const Signup = async (req, res) => {
       await newUser.save();
 
       // Generate JWT token
-      const token = jwt.sign({ id: newUser._id }, secret_key);
+      const token = jwt.sign(
+        { id: newUser._id }, 
+        secret_key, 
+        { expiresIn: '3h' }
+      );
 
       // Return the token
       res.status(201).json({ token });
@@ -58,7 +62,11 @@ export const Signin = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ id: user._id }, secret_key);
+    const token = jwt.sign(
+      { id: user._id }, 
+      secret_key,
+      { expiresIn: '3h' }
+    );
 
     // Return the token
     res.json({ token });

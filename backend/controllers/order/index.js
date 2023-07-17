@@ -28,7 +28,9 @@ export const getOrderById = async (req, res) => {
 export const createOrder = async (req, res) => {
   const { user, products, totalAmount, status } = req.body;
   try {
-
+    if(products.length < 1){
+      return res.status(400).json({ error: 'No products is added to order.' });
+    }
     const productIds = products.map((product) => product.product);
     const existingProducts = await Product.find({ _id: { $in: productIds } });
     if (existingProducts.length !== productIds.length) {

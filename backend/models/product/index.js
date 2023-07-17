@@ -19,6 +19,9 @@ const productSchema = new Schema({
     ref: 'Category',
     required: true
   },
+  imageUrl:{
+    type: String
+  }
   // You can add more fields like images, quantity, etc. as per your requirements
 });
 

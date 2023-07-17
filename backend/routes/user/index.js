@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import authMiddleware from '../../middleware/auth'
 
 const router = Router();
 
@@ -8,14 +9,20 @@ import {
     getUserById,
     // createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    verifyMail,
+    updatePassword
   } from '../../controllers/user/index.js';
 
 // User routes
 router.get('/', getAllUsers);
-router.get('/:id', getUserById);
+
+router.get('/verify-mail', verifyMail);
+router.patch('/update-password', updatePassword);
+
+router.get('/:id', authMiddleware, getUserById);
 // router.post('/', createUser);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.put('/:id', authMiddleware, updateUser);
+router.delete('/:id', authMiddleware, deleteUser);
 
 export default router;
