@@ -12,8 +12,6 @@ import authMiddleware from '../../middleware/auth.js'
 
 const router = Router();
 
-
-
 // Product routes
 router.get('/', getAllProducts);
 router.get('/:id',authMiddleware, getProductById);

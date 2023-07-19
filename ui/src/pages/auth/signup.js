@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
+import axios from 'axios'
 
-// react-ootstrap
+// react-bootstrap
 import { Form, Row, Col } from 'react-bootstrap'
 
 //react-router-dom
@@ -24,11 +25,22 @@ function SignUpPage() {
 	const [passwordError, setPasswordError] = useState('')
 	const [showAlert, setShowAlert] = useState(false)
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault()
 		validatePassword()
 
-		if (passwordError === '' && emailError === '') {
+		try {
+			const res = await axios.post(`${process.env.REACT_APP_DEV_BACKEND_URL}/auth/signup`, {
+				email: formData.email,
+				password: formData.password,
+				mobile: formData.mobile,
+				name: formData.name
+			})
+			if (res.data.token) {
+				setShowAlert(false)
+			}
+		}
+		catch (error) {
 			setShowAlert(true)
 		}
 
@@ -110,6 +122,7 @@ function SignUpPage() {
 						name="password"
 						value={formData.password}
 						onChange={handleFieldChange}
+						onBlur={validatePassword}
 					/>
 					{passwordError && <p className="text-danger">{passwordError}</p>}
 				</Row>
@@ -125,16 +138,23 @@ function SignUpPage() {
 					/>
 				</Row>
 				<Row className="m-0 mt-4">
-					<CustomButton variant="primary" type="submit" className="w-100">
-            SignUp
+					<CustomButton variant="primary" type="submit" className="w-100" isDisabled={
+						emailError !== '' ||
+						passwordError !== '' ||
+						formData.email == '' ||
+						formData.password == '' ||
+						formData.name == '' ||
+						formData.mobile == ''
+					}>
+						SignUp
 					</CustomButton>
 				</Row>
 				<Row className="mt-3">
 					<Col>
 						<p className="text-center mb-0 text-styles">
-              Already have an account!{' '}
+							Already have an account!{' '}
 							<Link to="/" className="text-decoration-none">
-                Login
+								Login
 							</Link>
 						</p>
 					</Col>

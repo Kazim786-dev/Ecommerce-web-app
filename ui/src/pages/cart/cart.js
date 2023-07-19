@@ -1,7 +1,8 @@
 import { React, useState, useMemo } from 'react'
+import axios from 'axios'
 
 import { Container, Form, Image } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 //svg
 import { ReactComponent as ArrowLeft } from '../../static/images/svg/Arrow left.svg'
@@ -16,14 +17,13 @@ import AlertComp from '../../components/alert'
 import CustomButton from '../../components/button'
 import CartTable from '../../components/table'
 import DeleteConfirmationModal from '../../components/modal/delete-confirmation'
-import NavbarComp from '../../components/navbar'
 
 //redux
-import { remove, increase, decrease } from '../../redux/slice/cart/cart-slice'
+import { remove, increase, decrease, empty } from '../../redux/slice/cart/cart-slice'
 import { useDispatch, useSelector } from 'react-redux'
 
 //component
-const ShoppingCart = ({ user }) => {
+const ShoppingCart = ({user}) => {
 
 	const taxRate = 0.1
 
@@ -33,14 +33,11 @@ const ShoppingCart = ({ user }) => {
 	const [orderPlaced, setOrderPlaced] = useState(false)
 
 	const dispatch = useDispatch()
+	const navigate = useNavigate()
+
 	//redux State
 	const cartItems = useSelector((state) => state.cart.products)
-
-	const handlePlaceOrder = () => {
-		// Handle place order logic
-		// Assuming the order placement is successful
-		setOrderPlaced(true)
-	}
+	// const user = useSelector((state) => state.customer)
 
 	// Function to handle quantity increase
 	const handleIncrease = (itemId) => {
@@ -70,10 +67,45 @@ const ShoppingCart = ({ user }) => {
 
 	const handleDeleteConfirmation = () => {
 		if (deleteItemId) {
-			// setCartItems((prevItems) => prevItems.filter((item) => item.id !== deleteItemId))
+			// setCartItems((prevItems) => prevItems.filter((item) => item._id !== deleteItemId))
 			dispatch(remove(deleteItemId))
 			setDeleteItemId(null)
 			setShowDeleteModal(false)
+		}
+	}
+
+	const handlePlaceOrder = async () => {
+
+		// Handle place order logic
+		try {
+			const products = cartItems.map((product) => ({
+				product: product._id,
+				quantity: product.quantity,
+			}))
+
+			const response = await axios.post(
+				`${process.env.REACT_APP_DEV_BACKEND_URL}/orders`,
+				{
+					products,
+					totalAmount: total.toFixed(2),
+					status: 'Pending',
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${user.token}`,
+					},
+				}
+			)
+
+			if (response.status === 201) {
+				setOrderPlaced(true)
+				dispatch(empty())
+				navigate('/total-orders')
+			}
+
+		} catch (error) {
+			console.log(error)
+			setOrderPlaced(false)
 		}
 	}
 
@@ -122,7 +154,7 @@ const ShoppingCart = ({ user }) => {
 			width: '25%',
 			render: (item) => (
 				<div className="d-flex align-items-center">
-					<button className="btn btn-sm" style={{ borderColor: '#DFDFDF' }} onClick={() => handleDecrease(item.id)}>
+					<button className="btn btn-sm" style={{ borderColor: '#DFDFDF' }} onClick={() => handleDecrease(item._id)}>
 						<Decrease />
 					</button>
 					<div
@@ -137,7 +169,7 @@ const ShoppingCart = ({ user }) => {
 					>
 						<span className="mx-3">{item.quantity}</span>
 					</div>
-					<button className="btn btn-sm " style={{ borderColor: '#DFDFDF' }} onClick={() => handleIncrease(item.id)}>
+					<button className="btn btn-sm " style={{ borderColor: '#DFDFDF' }} onClick={() => handleIncrease(item._id)}>
 						<Increase />
 					</button>
 				</div>
@@ -150,8 +182,8 @@ const ShoppingCart = ({ user }) => {
 		{
 			header: '',
 			render: (item) => (
-				// <Trash onClick={() => handleDelete(item.id)} style={{ cursor: "pointer", textAlign: "center", marginRight:"1rem" }}/>
-				<button onClick={() => handleDelete(item.id)} style={{ backgroundColor: 'inherit', border: 'none', marginRight: '1rem' }}><Trash /></button>
+				// <Trash onClick={() => handleDelete(item._id)} style={{ cursor: "pointer", textAlign: "center", marginRight:"1rem" }}/>
+				<button onClick={() => handleDelete(item._id)} style={{ backgroundColor: 'inherit', border: 'none', marginRight: '1rem' }}><Trash /></button>
 			),
 			width: '12px',
 			//   style: { textAlign: "center", cursor: "pointer" },
@@ -161,7 +193,6 @@ const ShoppingCart = ({ user }) => {
 	return (
 
 		<>
-			<NavbarComp cartItemsCount={cartItems.length} loggedIn={true} name={user.name} userPicture={'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80'} />
 			<Container fluid className="pt-0 p-5">
 				<div className="d-flex align-items-center heading-container">
 					<Link to='/products'><ArrowLeft style={{ cursor: 'pointer' }} /></Link>
@@ -176,7 +207,7 @@ const ShoppingCart = ({ user }) => {
 					<div ><p>Total:</p><b>${total.toFixed(2)}</b></div>
 				</div>
 				<div className="d-flex justify-content-end">
-					<CustomButton className="custom-button" variant="primary" type="submit" onClick={handlePlaceOrder}>
+					<CustomButton className="custom-button" isDisabled={cartItems.length<=0} variant="primary" type="submit" onClick={handlePlaceOrder}>
 						Place Order
 					</CustomButton>
 				</div>

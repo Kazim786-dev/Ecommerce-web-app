@@ -1,10 +1,21 @@
 import { Schema, model } from 'mongoose';
-
+import shortid from 'shortid'
 const orderSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  orderNumber: {
+    type: String,
+    required: true,
+    default: () => shortid.generate(),
+    unique: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+    required:true,
   },
   products: [{
     product: {
@@ -25,8 +36,11 @@ const orderSchema = new Schema({
     type: String,
     enum: ['Pending', 'Shipped', 'Delivered'],
     default: 'Pending'
-  }
+  },
+  
   // You can add more fields like shipping address, payment details, etc. as per your requirements
+},{
+  timestamps:true
 });
 
 const Order = model('Order', orderSchema);

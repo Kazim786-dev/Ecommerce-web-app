@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+
 import { Container, Offcanvas, Row, Col, Image } from 'react-bootstrap'
 
 //svg
@@ -6,13 +8,48 @@ import { ReactComponent as ArrowLeft } from '../../static/images/svg/Arrow left.
 
 //components
 import DetailsTable from '../table'
+import SpinnerComp from '../spinner'
 
 const OffCanvasComp = ({
 	placement,
 	show,
 	setShow,
 	orderItem,
-	userName }) => {
+	user }) => {
+
+	const [loading,setLoading] = useState(true)
+	const [OrderProducts,setOrderProducts] = useState([])
+
+	useEffect(()=>{
+		fetchProducts()
+	},[])
+
+	const fetchProducts = async()=>{
+		try{
+			const products = orderItem.products
+			if(products.length > 0){
+				const response = await axios.post(
+					`${process.env.REACT_APP_DEV_BACKEND_URL}/orders/order-products`, 
+					{
+						products
+					},
+					{
+						headers: {
+							Authorization: `Bearer ${user.token}`,
+						},
+					}
+				)
+
+				if(response.status===200){
+					setOrderProducts(response.data)
+					setLoading(false)
+				}
+			}
+		}
+		catch(error){
+			setLoading(false)
+		}
+	}
 
 	// // table column styling
 	const columns = [
@@ -50,43 +87,49 @@ const OffCanvasComp = ({
 	]
 
 	return (
+		<>
+			{loading ? (
+				<SpinnerComp />
+			) :
+				(
+					<Offcanvas show={show} onHide={() => setShow(false)} placement={placement} style={{ width: '80%' }}>
+						<Offcanvas.Body>
+							<Container fluid className="pt-0 p-3" >
+								<div className="d-flex align-items-center heading-container">
+									<ArrowLeft onClick={() => setShow(false)} style={{ cursor: 'pointer' }}/>
+									<h3 className='ms-1'>Order Detail</h3>
+								</div>
+								<hr />
+								<Row className="order-info-row pt-1 pb-2">
+									<Col>
+										<p className='text-styles'>Order Date:</p> {orderItem.date}
+									</Col>
+									<Col>
+										<p className='text-styles'>Order #:</p> {orderItem.orderNumber}
+									</Col>
+									<Col>
+										<p className='text-styles'>User:</p> {user.name}
+									</Col>
+									<Col>
+										<p className='text-styles'>Products Count:</p> {orderItem.products.length}
+									</Col>
+									<Col>
+										<p className='text-styles'>Amount:</p> {'$'+orderItem.totalAmount.toFixed(2)}
+									</Col>
+								</Row>
+								<hr />
+								<div className="d-flex align-items-center heading-container">
+									<h4>Product Information</h4>
+								</div>
 
-		<Offcanvas show={show} onHide={() => setShow(false)} placement={placement} style={{ width: '80%' }}>
-			<Offcanvas.Body>
-				<Container fluid className="pt-0 p-3" >
-					<div className="d-flex align-items-center heading-container">
-						<ArrowLeft onClick={() => setShow(false)} style={{ cursor: 'pointer' }}/>
-						<h3 className='ms-1'>Order Detail</h3>
-					</div>
-					<hr />
-					<Row className="order-info-row pt-1 pb-2">
-						<Col>
-							<p className='text-styles'>Order Date:</p> {orderItem.Date}
-						</Col>
-						<Col>
-							<p className='text-styles'>Order #:</p> {orderItem.OrderNo}
-						</Col>
-						<Col>
-							<p className='text-styles'>User:</p> {userName}
-						</Col>
-						<Col>
-							<p className='text-styles'>Products Count:</p> {orderItem.products.length}
-						</Col>
-						<Col>
-							<p className='text-styles'>Amount:</p> {'$'+orderItem.Amount.toFixed(2)}
-						</Col>
-					</Row>
-					<hr />
-					<div className="d-flex align-items-center heading-container">
-						<h4>Product Information</h4>
-					</div>
+								<DetailsTable data={OrderProducts} columns={columns} />
 
-					<DetailsTable data={orderItem.products} columns={columns} />
-
-				</Container>
-			</Offcanvas.Body>
-		</Offcanvas>
-
+							</Container>
+						</Offcanvas.Body>
+					</Offcanvas>
+				)
+			}
+		</>
 	)
 }
 

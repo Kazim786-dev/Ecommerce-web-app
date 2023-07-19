@@ -1,7 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, { useState } from 'react'
+import axios from 'axios'
 
-// react-ootstrap
+// react-bootstrap
 import { Form, Row, Col } from 'react-bootstrap'
 
 //react-router-dom
@@ -14,7 +15,7 @@ import FormField from '../../components/input-field'
 import FormContainer from '../../components/formContainer'
 
 //redux
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { login } from '../../redux/slice/auth/customer-slice'
 
 //function based component
@@ -34,28 +35,40 @@ const LoginPage = () => {
 	// Destructure the form data object
 	const { email, password, remember } = formData
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault()
 
-		// Perform login logic here
-		if (emailError !== '') {
-			setShowAlert(true)
-		} else {
-			dispatch(login({ email, password, name: 'Johnson Charles', mobile: '', token: 'token' }))
+		try {
+			const res = await axios.post(`${process.env.REACT_APP_DEV_BACKEND_URL}/auth/signin`, {
+				email: email,
+				password: password
+			})
+
+			if (res.data.token) {
+				dispatch(login({
+					email,
+					password,
+					name: res.data.user.name,
+					mobile: res.data.user.mobile,
+					token: res.data.token
+				}))
+				setShowAlert(false)
+			}
+		} catch (error) {
+			setShowAlert(true) // Set showAlert to true to show the alert
 		}
 
 		// Clear all fields by resetting the form data state
-		// setFormData({
-		// 	email: '',
-		// 	password: '',
-		// 	remember: false,
-		// })
+		setFormData({
+			email: '',
+			password: '',
+			remember: false,
+		})
 	}
 
 	const validateEmail = () => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 		if (!emailRegex.test(email)) {
-			console.log(email)
 			setEmailError('Enter a valid email address')
 		} else {
 			setEmailError('')
@@ -104,7 +117,7 @@ const LoginPage = () => {
 					</Form.Group>
 				</Row>
 				<Row className='m-0 mt-4'>
-					<CustomButton variant="primary" type="submit" className="w-100">
+					<CustomButton variant="primary" type="submit" className="w-100" isDisabled={emailError !== '' || password == ''}>
 						Login
 					</CustomButton>
 				</Row>

@@ -1,6 +1,5 @@
 import express from 'express'
 import 'dotenv/config'
-
 //routes
 import userRouter from './routes/user/index.js'
 import productRouter from './routes/product/index.js'

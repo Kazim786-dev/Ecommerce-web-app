@@ -1,7 +1,7 @@
 import Category from '../../models/category/index.js';
 
 // Controller functions
-export const getAllCategories = async (req, res) => {
+const getAllCategories = async (req, res) => {
   try {
     const categories = await Category.find();
     res.json(categories);
@@ -10,7 +10,7 @@ export const getAllCategories = async (req, res) => {
   }
 };
 
-export const getCategoryById = async (req, res) => {
+const getCategoryById = async (req, res) => {
   const { id } = req.params;
   try {
     const category = await Category.findById(id);
@@ -24,7 +24,7 @@ export const getCategoryById = async (req, res) => {
   }
 };
 
-export const createCategory = async (req, res) => {
+const createCategory = async (req, res) => {
   const { name } = req.body;
   try {
     const newCategory = new Category({
@@ -37,7 +37,7 @@ export const createCategory = async (req, res) => {
   }
 };
 
-export const updateCategory = async (req, res) => {
+const updateCategory = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
   try {
@@ -54,7 +54,7 @@ export const updateCategory = async (req, res) => {
   }
 };
 
-export const deleteCategory = async (req, res) => {
+const deleteCategory = async (req, res) => {
   const { id } = req.params;
   try {
     const category = await Category.findById(id);
@@ -67,4 +67,12 @@ export const deleteCategory = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while deleting the category.' });
   }
+};
+
+module.exports = {
+  getAllCategories,
+  getCategoryById,
+  createCategory,
+  updateCategory,
+  deleteCategory
 };

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import axios from 'axios'
 
 // react-ootstrap
 import { Form, Row, Col } from 'react-bootstrap'
@@ -23,15 +24,25 @@ function ForgetPasswordPage() {
 	//object to navigate to different pages
 	const navigate = useNavigate()
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async(e) => {
 		e.preventDefault()
 		// Perform login logic here
 
+		try {
+			const res = await axios.post(`${process.env.REACT_APP_DEV_BACKEND_URL}/users/verify-mail`, {
+				email: email
+			})
+
+			if(res.data.status===200){
+				setShowAlert(true)
+			}			
+			// navigate('/new-pass')
+		} catch (error) {
+			//console.log(error)
+		}
+
 		//clear all fields
 		setEmail('')
-		if(emailError===''){
-			navigate('/new-pass')
-		}
 	}
 
 	const validateEmail = () => {
@@ -65,7 +76,7 @@ function ForgetPasswordPage() {
 				</Row>
                 
 				<Row className='m-0 mt-4'>
-					<CustomButton variant="primary" type="submit" className="w-100">
+					<CustomButton variant="primary" type="submit" className="w-100" isDisabled={emailError!=='' || email==''}>
                         Forgot Password
 					</CustomButton>
 				</Row>

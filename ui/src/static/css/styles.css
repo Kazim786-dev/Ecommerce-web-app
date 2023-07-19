@@ -47,7 +47,8 @@ color: #343A40;
 /* product card */
 
 .product-card {
-  width:18rem
+  width:18rem;
+  height: 100%;
 }
 
 .product-card-img{

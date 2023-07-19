@@ -7,10 +7,12 @@ const CustomButton = ({
 	type,
 	className,
 	children,
-	onClick }) => {
+	onClick,
+	isDisabled
+}) => {
     
 	return (
-		<Button variant={variant} type={type} className={className} onClick={onClick}>
+		<Button variant={variant} type={type} className={className} disabled={isDisabled} onClick={onClick}>
 			{children}
 		</Button>
 	)

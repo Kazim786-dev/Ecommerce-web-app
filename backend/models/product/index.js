@@ -19,10 +19,21 @@ const productSchema = new Schema({
     ref: 'Category',
     required: true
   },
-  imageUrl:{
-    type: String
+  image:{
+    type: String,
+    required:true
+  },
+  color:{
+    type:String,
+    required:true
+  },
+  size:{
+    type:String,
+    enum:['XS','S','M','L','XL','XXL'],
+    required:true
   }
-  // You can add more fields like images, quantity, etc. as per your requirements
+},{
+  timestamps:true
 });
 
 const Product = model('Product', productSchema);

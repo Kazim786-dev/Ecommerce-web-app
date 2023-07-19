@@ -1,7 +1,7 @@
 import User from '../../models/user/index.js';
 
 // Controller functions
-export const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -10,7 +10,7 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-export const getUserById = async (req, res) => {
+const getUserById = async (req, res) => {
   const { id } = req.params;
   try {
     const user = await User.findById(id);
@@ -24,7 +24,7 @@ export const getUserById = async (req, res) => {
   }
 };
 
-export const createUser = async (req, res) => {
+const createUser = async (req, res) => {
   const { name, email, password, mobile } = req.body;
 
   try {
@@ -50,7 +50,7 @@ export const createUser = async (req, res) => {
   }
 };
 
-export const updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
   const { id } = req.params;
   const { name, email, password, mobile } = req.body;
   try {
@@ -70,7 +70,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-export const deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
     const user = await User.findById(id);
@@ -85,7 +85,7 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-export const verifyMail = async (req, res) => {
+const verifyMail = async (req, res) => {
   const { email } = req.body;
 
   // Logic to verify email
@@ -101,7 +101,7 @@ export const verifyMail = async (req, res) => {
   }
 };
 
-export const updatePassword = async (req, res) => {
+const updatePassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
   try {
@@ -121,3 +121,13 @@ export const updatePassword = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while updating password. '+ error });
   }
 };
+
+module.exports = {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+  verifyMail,
+  updatePassword
+}

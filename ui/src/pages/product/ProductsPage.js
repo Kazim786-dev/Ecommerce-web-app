@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 //react-bootstrap
 import { Container, Row, Col, Form } from 'react-bootstrap'
 
 //components
 import Footer from '../../components/footer'
-import NavbarComp from '../../components/navbar'
-import PaginationComp from '../../components/pagination'
 import ProductCard from '../../components/product/ProductCard'
 import SpinnerComp from '../../components/spinner'
 
@@ -15,19 +14,17 @@ import { useSelector, useDispatch } from 'react-redux'
 //actions
 import { add } from '../../redux/slice/cart/cart-slice'
 
-
-
-const products = [
-	{ id: 1, name: 'Product 1', color: 'blue', size: 32, description: 'This is product 1', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 10 },
-	{ id: 2, name: 'Product 2', color: 'blue', size: 32, description: 'This is product 2', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 20 },
-	{ id: 3, name: 'Product 3', color: 'blue', size: 32, description: 'This is product 3', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 30 },
-	{ id: 4, name: 'Product 4', color: 'blue', size: 32, description: 'This is product 4', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 40 },
-	{ id: 5, name: 'Product 1', color: 'blue', size: 32, description: 'This is product 1', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 10 },
-	{ id: 6, name: 'Product 2', color: 'blue', size: 32, description: 'This is product 2', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 20 },
-	{ id: 7, name: 'Product 3', color: 'blue', size: 32, description: 'This is product 3', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 30 },
-	{ id: 8, name: 'Product 4', color: 'blue', size: 32, description: 'This is product 4', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 40 },
-	// Add more products as needed
-]
+// const products = [
+// 	{ id: 1, name: 'Product 1', color: 'blue', size: 32, description: 'This is product 1', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 10 },
+// 	{ id: 2, name: 'Product 2', color: 'blue', size: 32, description: 'This is product 2', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 20 },
+// 	{ id: 3, name: 'Product 3', color: 'blue', size: 32, description: 'This is product 3', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 30 },
+// 	{ id: 4, name: 'Product 4', color: 'blue', size: 32, description: 'This is product 4', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 40 },
+// 	{ id: 5, name: 'Product 1', color: 'blue', size: 32, description: 'This is product 1', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 10 },
+// 	{ id: 6, name: 'Product 2', color: 'blue', size: 32, description: 'This is product 2', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 20 },
+// 	{ id: 7, name: 'Product 3', color: 'blue', size: 32, description: 'This is product 3', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 30 },
+// 	{ id: 8, name: 'Product 4', color: 'blue', size: 32, description: 'This is product 4', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 40 },
+// 	// Add more products as needed
+// ]
 
 const AllProductsPage = ({ user }) => {
 
@@ -36,8 +33,8 @@ const AllProductsPage = ({ user }) => {
 	const [priceFilter, setPriceFilter] = useState('')
 	// const [cartItems, setCartItems] = useState([])
 
-	// const [data, setData] = useState(null);
-	const [loading, setLoading] = useState(false)
+	const [products, setProducts] = useState([])
+	const [loading, setLoading] = useState(true)
 
 	//redux state
 	const cartProducts = useSelector((state) => state.cart.products)
@@ -45,22 +42,19 @@ const AllProductsPage = ({ user }) => {
 	const dispatch = useDispatch()
 
 
-	// useEffect( () => {
-	// 	fetchData();
-	// }, [data])
+	useEffect( () => {
+		fetchProducts()
+	}, [])
 
-	// const fetchData = async () => {
-	// 	try {
-	// 		const response = await fetch('your-api-url');
-	// 		const data = await response.json();
-	// 		setData(data);
-	// 		setLoading(false);
-	// 	} catch (error) {
-	// 		console.error('Error fetching data:', error);
-	// 	}
-	// };
-
-
+	const fetchProducts = async () => {
+		try {
+			const response = await axios.get(`${process.env.REACT_APP_DEV_BACKEND_URL}/products/`)
+			setProducts(response.data.products)
+			setLoading(false)
+		} catch (error) {
+			console.error('Error fetching data:', error)
+		}
+	}
 
 	const handleSearchChange = (event) => {
 		setSearchTerm(event.target.value)
@@ -83,14 +77,13 @@ const AllProductsPage = ({ user }) => {
 			}
 		})
 
-
 	const addToCart = (product) => {
-		const foundProduct = cartProducts.find((item) => item.id == product.id)
+		const foundProduct = cartProducts.find((item) => item._id == product._id)
+		//check not already added
 		if (!foundProduct) {
-			const item = filteredProducts.find((p) => p.id === product.id)
+			const item = filteredProducts.find((p) => p._id === product._id)
 			dispatch(add(item))
 		}
-
 	}
 
 	return (
@@ -100,7 +93,6 @@ const AllProductsPage = ({ user }) => {
 			) :
 				(
 					<>
-						<NavbarComp cartItemsCount={cartProducts.length} name={user.name} userPicture={'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80'} />
 						<Container fluid className='pt-0 p-5'>
 
 							<Row className="mb-3 m-0 ps-1 pe-1" >
@@ -129,8 +121,8 @@ const AllProductsPage = ({ user }) => {
 								{/* Desktop: Display 4 products per row 
 								Tablet: 2 Products per row
 								Mobile: 1 product per row */}
-								{filteredProducts.map((product) => (
-									<Col key={product.id} xl={3} lg={6} md={6} sm={12} className="d-flex justify-content-center ps-0 pe-0 mb-5">
+								{filteredProducts.map((product,index) => (
+									<Col key={index} xl={3} lg={6} md={6} sm={12} className="d-flex justify-content-center ps-0 pe-0 mb-5">
 										<div>
 											<ProductCard name={user.name} product={product} addToCart={addToCart} />
 										</div>
@@ -138,11 +130,6 @@ const AllProductsPage = ({ user }) => {
 								))}
 
 							</Row>
-
-							{/* <Row className="m-0 align-items-center ps-1 pe-1">
-								<Col sm={6} className="d-flex justify-content-start text-styles ps-0">{filteredProducts.length} products found in clothing and accessories</Col>
-								<Col sm={6} className="d-flex justify-content-end pe-0"><PaginationComp pageSize={8} url={'/api/data'} /></Col>
-							</Row> */}
 							
 							<Footer className={'d-flex justify-content-between align-items-center ps-1 pe-1'} count={filteredProducts.length} text={`${filteredProducts.length} products found in clothing and accessories`} pageSize={8} url={'/api/data'} />
 

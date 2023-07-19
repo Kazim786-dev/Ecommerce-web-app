@@ -1,3 +1,5 @@
+import AllModels from '../models/all-models'
+
 import { connection, connect, set } from 'mongoose';
 
 const { MONGO_URL } = process.env;

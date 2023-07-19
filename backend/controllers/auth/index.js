@@ -1,11 +1,10 @@
 
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv/config'
 import User from '../../models/user/index.js';
 
 const { secret_key } = process.env
 
-export const Signup = async (req, res) => {
+const Signup = async (req, res) => {
   const { name, email, password, mobile } = req.body;
 
   try {
@@ -42,7 +41,7 @@ export const Signup = async (req, res) => {
 
 }
 
-export const Signin = async (req, res) => {
+const Signin = async (req, res) => {
 
   // Extract the email and password from the request body
   const { email, password } = req.body;
@@ -63,15 +62,20 @@ export const Signin = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id }, 
+      { id: user._id },
       secret_key,
       { expiresIn: '3h' }
     );
 
     // Return the token
-    res.json({ token });
+    res.json({token: token, user:user });
   } catch (error) {
     console.log(error)
     res.status(500).json({ message: 'Error logging in' });
   }
 };
+
+module.exports = {
+  Signin,
+  Signup
+}

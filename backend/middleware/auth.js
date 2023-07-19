@@ -18,13 +18,13 @@ const jwtOptions = {
 };
 
 // Create JWT strategy
-const strategy = new JwtStrategy(jwtOptions, (payload, done) => {
+const strategy = new JwtStrategy(jwtOptions, async(payload, done) => {
   // Find the user by ID in the payload
   try {
-    const foundUser = User.findById(payload.id)
+    const foundUser = await User.findById(payload.id)
     if (foundUser) {
       // If user is found, return user
-      done(null, foundUser);
+      done(null, {user:foundUser});
     } else {
       // If user is not found, return false
       done(null, false);

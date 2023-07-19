@@ -5,19 +5,18 @@ import cloudinary from '../../middleware/cloudinary.js';
 
 import Product from '../../models/product/index.js';
 import Category from '../../models/category/index.js';
-import { timeStamp } from 'console';
 
 // Controller functions
-export const getAllProducts = async (req, res) => {
+const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find();
-    res.json(products);
+    res.json({products:products});
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while fetching products.' });
   }
 };
 
-export const getProductById = async (req, res) => {
+const getProductById = async (req, res) => {
   const { id } = req.params;
   try {
     const product = await Product.findById(id);
@@ -31,9 +30,9 @@ export const getProductById = async (req, res) => {
   }
 };
 
-export const createProduct = async (req, res) => {
+const createProduct = async (req, res) => {
 
-    const { name, description, price, category } = req.body;
+    const { name, description, price, category, size, color } = req.body;
 
     try {
       // Check if the specified category exists
@@ -42,7 +41,7 @@ export const createProduct = async (req, res) => {
         return res.status(404).json({ error: 'Category not found.' });
       }
 
-      let imageUrl = '';
+      let image = '';
       // Check if an image was uploaded
       if (req.file) {
         const uniqueId = Date.now().toString(); // Generate a unique identifier (timestamp in this case)
@@ -57,13 +56,15 @@ export const createProduct = async (req, res) => {
             res.json({error:'Error deleting file'});
           } else {
             // Retrieve the image URL from the Cloudinary response
-            imageUrl = result.secure_url;
+            image = result.secure_url;
             const newProduct = new Product({
               name,
               description,
               price,
               category,
-              imageUrl
+              image:image,
+              size,
+              color
             });
             const savedProduct = await newProduct.save();
             
@@ -84,7 +85,7 @@ export const createProduct = async (req, res) => {
     }
 };
 
-export const updateProduct = async (req, res) => {
+const updateProduct = async (req, res) => {
   const { id } = req.params;
   const { name, description, price, category } = req.body;
   try {
@@ -100,6 +101,9 @@ export const updateProduct = async (req, res) => {
       product.description = description || product.description;
       product.price = price || product.price;
       product.category = category || product.category;
+      product.size = size || product.size;
+      product.color = color || product.color;
+      
       const updatedProduct = await product.save();
       res.json(updatedProduct);
     } else {
@@ -110,7 +114,7 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-export const deleteProduct = async (req, res) => {
+const deleteProduct = async (req, res) => {
   const { id } = req.params;
   try {
     const product = await Product.findById(id);
@@ -124,3 +128,11 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while deleting the product.' });
   }
 };
+
+module.exports = {
+  getAllProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct
+}
