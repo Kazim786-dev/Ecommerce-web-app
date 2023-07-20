@@ -15,9 +15,6 @@ import Footer from '../../components/footer'
 import OffCanvasComp from '../../components/offcanvas'
 import SpinnerComp from '../../components/spinner'
 
-//redux
-// import { useSelector, useDispatch } from 'react-redux'
-
 function TotalOrders({ user }) {
 
 	//states
@@ -26,32 +23,23 @@ function TotalOrders({ user }) {
 
 	const [loading, setLoading] = useState(true)
 
-	// const user = useSelector((state)=>state.customer)
-	// const dispatch = useDispatch()
-
-	// Sample data for the table
-	// const orderItems = [
-	// 	{
-	// 		Date: '22 March 2023', OrderNo: '342599', Amount: 550,
-	// 		products: [
-	// 			{ id: 1, name: 'Product 1', description: 'This is product 1', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 10, quantity: 5 },
-	// 			{ id: 2, name: 'Product 2', description: 'This is product 2', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 20, quantity: 0 },
-	// 			{ id: 3, name: 'Product 3', description: 'This is product 3', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 30, quantity: 2 },
-	// 			{ id: 4, name: 'Product 4', description: 'This is product 4', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 40, quantity: 4 },
-	// 		]
-	// 	},
-	// ]
-
 	const [orderItems, setOrderItems] = useState([])
+
+	//states for pagination
+	const [totalPages, setTotalPages] = useState(0)
+	const [currentPage, setCurrentPage] = useState(1)
+
+	const pageSize = 8;
 
 	useEffect(() => {
 		fetchOrders()
-	}, [])
+	}, [currentPage])
 
 	const fetchOrders = async () => {
 		try {
+			setLoading(true)
 			const response = await axios.get(
-				`${process.env.REACT_APP_DEV_BACKEND_URL}/orders/user-orders`,
+				`${process.env.REACT_APP_DEV_BACKEND_URL}/orders/user-orders?page=${currentPage}&size=${pageSize}`,
 				{
 					headers: {
 						Authorization: `Bearer ${user.token}`,
@@ -59,7 +47,9 @@ function TotalOrders({ user }) {
 				}
 			)
 			if (response.status === 200) {
-				setOrderItems(response.data.orders)
+				const { totalPages, data } = response.data
+				setOrderItems(data)
+				setTotalPages(totalPages)
 				setLoading(false)
 			}
 			
@@ -73,7 +63,11 @@ function TotalOrders({ user }) {
 		{
 			header: 'Date',
 			width: '17rem',
-			render: (item) => item.date
+			render: (item) => {
+				const date = new Date(item.date);
+				const utcDate = date.toLocaleString('en-US', { timeZone: 'UTC' });
+				return utcDate;
+			}
 		},
 		{
 			header: 'Order#',
@@ -120,7 +114,15 @@ function TotalOrders({ user }) {
 
 							<DetailsTable data={orderItems} columns={columns} />
 
-							<Footer className={'d-flex justify-content-between align-items-center pt-3'} text={`${orderItems.length} Total Count`} pageSize={8} url={'/api/data'} />
+							<Footer 
+								className={'d-flex justify-content-between align-items-center pt-3'}
+								text={`${orderItems.length} Total Count`}
+								pageSize={8}
+								url={'/api/data'}
+								totalPages={totalPages}
+								currentPage={currentPage}
+								setCurrentPage={setCurrentPage}
+							/>
 
 						</Container>
 						{show && <OffCanvasComp placement={'end'} show={show} setShow={setShow} orderItem={orderItem} user={user} />}

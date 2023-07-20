@@ -1,12 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 //component
 import PaginationComp from '../../components/pagination'
 
-const Footer = ({className, text, pageSize, url}) => {
+const Footer = ({className, text, totalPages, currentPage, setCurrentPage}) => {
+
 	return (<div className = {className} >
 		<p className='text-styles'>{text}</p>
-		<PaginationComp pageSize={pageSize} url={url} />
+		<PaginationComp
+			totalPages={totalPages}
+			currentPage={currentPage}
+			setCurrentPage={setCurrentPage}			
+		/>
 	</div>)
 }
 

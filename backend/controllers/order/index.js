@@ -1,6 +1,5 @@
 import Order from '../../models/order/index.js';
 import Product from '../../models/product/index.js';
-import User from '../../models/user/index.js'
 
 // Controller functions
 const getAllOrders = async (req, res) => {
@@ -14,12 +13,27 @@ const getAllOrders = async (req, res) => {
 
 const getAllUserOrders = async (req, res) => {
   try {
+    
     const user = req.user.user
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    const orders = await Order.find({ user: user._id });
-    res.status(200).json({ orders: orders });
+
+    const page = parseInt(req.query.page) || 1; // Default page 1 if not provided
+    const pageSize = parseInt(req.query.size) || 8; // Default size 8 if not provided
+
+    const totalCount = await Order.countDocuments();
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    const orders = await Order.find({ user: user._id })
+    .skip((page - 1) * pageSize)
+    .limit(pageSize);
+
+
+    res.status(200).json({
+      totalPages,
+      data: orders 
+    });
 
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while fetching orders.' });
@@ -43,7 +57,7 @@ const getOrderById = async (req, res) => {
 const createOrder = async (req, res) => {
   const { products, totalAmount, status } = req.body;
   try {
-    
+    let total = 0;
     const foundUser = req.user.user
 
     if (!foundUser) {
@@ -53,22 +67,47 @@ const createOrder = async (req, res) => {
     if (products.length < 1) {
       return res.status(400).json({ error: 'No products is added to order.' });
     }
+
+    // Fetch the product details from the database
     const productIds = products.map((product) => product.product);
     const existingProducts = await Product.find({ _id: { $in: productIds } });
-    if (existingProducts.length !== productIds.length) {
-      return res.status(400).json({ error: 'One or more products do not exist.' });
+    const productMap = new Map(existingProducts.map((product) => [product._id.toString(), product]));
+
+    // Check for quantity validation
+    for (const p of products) {
+      const product = productMap.get(p.product);
+      if (!product) {
+        return res.status(400).json({ error: `Product with ID ${p.product} does not exist.` });
+      }
+      else if (p.quantity < 1 || p.quantity > product.quantity) {
+        return res.status(400).json({
+          error: `Invalid quantity for product with ID ${p.product}. Quantity should be between 1 and ${product.quantity}.`,
+        });
+      }
+      else {
+        total += (product.price)*(p.quantity)
+      }
     }
 
     const newOrder = new Order({
       user: foundUser._id,
       products,
-      totalAmount,
+      totalAmount:total,
       status
     });
+
+     // Update product quantities after saving the order
+     for (const p of products) {
+      const product = productMap.get(p.product);
+      const updatedQuantity = product.quantity - p.quantity;
+      await Product.updateOne({ _id: product._id }, { quantity: updatedQuantity });
+    }
+
+
     const savedOrder = await newOrder.save();
     res.status(201).json(savedOrder);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred while creating the order.' });
+    res.status(500).json({ error: 'An error occurred while creating the order. '+ error });
   }
 };
 
@@ -138,6 +177,31 @@ const getAllOrderProducts = async (req, res) => {
     res.status(500).json({ error: 'Error fetching products' });
   }
 }
+
+const updateProductQuantity = async (req, res) => {
+  const { productId, quantity } = req.body;
+
+  try {
+    // Check if the specified product exists
+    const existingProduct = await Product.findById(productId);
+    if (!existingProduct) {
+      return res.status(404).json({ error: 'Product not found.' });
+    }
+
+    // Validate the quantity to be greater than or equal to 1
+    if (quantity < 1) {
+      return res.status(400).json({ error: `Quantity can't be less than 1.` });
+    }
+
+    // Update the quantity of the product using updateOne
+    await Product.updateOne({ _id: productId }, { quantity });
+
+    res.json({ message: 'Product quantity updated successfully.' });
+  } catch (error) {
+      res.status(500).json({ error: 'An error occurred while updating the product quantity.' });
+  }
+};
+
 
 module.exports = {
   getAllOrders,

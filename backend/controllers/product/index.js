@@ -7,10 +7,22 @@ import Product from '../../models/product/index.js';
 import Category from '../../models/category/index.js';
 
 // Controller functions
-const getAllProducts = async (req, res) => {
+const getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
-    res.json({products:products});
+    const page = parseInt(req.query.page) || 1; // Default page 1 if not provided
+    const pageSize = parseInt(req.query.size) || 8; // Default size 8 if not provided
+
+    const totalCount = await Product.countDocuments();
+    const totalPages = Math.ceil(totalCount / pageSize);
+    
+    const products = await Product.find()
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+      res.status(200).json({
+        totalPages,
+        data: products,
+      });
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while fetching products.' });
   }
@@ -32,7 +44,7 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
 
-    const { name, description, price, category, size, color } = req.body;
+    const { name, description, price, quantity, category, size, color } = req.body;
 
     try {
       // Check if the specified category exists
@@ -40,6 +52,11 @@ const createProduct = async (req, res) => {
       if (!existingCategory) {
         return res.status(404).json({ error: 'Category not found.' });
       }
+
+      if(quantity<1){
+        return res.status(400).json({ error: `Quantity can't be less than 1.` });
+      }
+
 
       let image = '';
       // Check if an image was uploaded
@@ -61,6 +78,7 @@ const createProduct = async (req, res) => {
               name,
               description,
               price,
+              quantity,
               category,
               image:image,
               size,
@@ -130,7 +148,7 @@ const deleteProduct = async (req, res) => {
 };
 
 module.exports = {
-  getAllProducts,
+  getProducts,
   getProductById,
   createProduct,
   updateProduct,

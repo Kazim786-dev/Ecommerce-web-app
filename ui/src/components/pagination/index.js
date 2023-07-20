@@ -1,32 +1,12 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 //react-bootstrap
 import Pagination from 'react-bootstrap/Pagination'
 
-const PaginationComp = ({ pageSize, url }) => {
-
-	//states
-	const [currentPage, setCurrentPage] = useState(1)
-	const [totalPages, setTotalPages] = useState(10)
-	const [data, setData] = useState([])
-
-	// useEffect(() => {
-	// 	fetchData()
-	// }, [currentPage])
-
-	// const fetchData = async () => {
-	// 	try {
-	// 		//api call
-	// 		const response = await fetch(`${url}?page=${currentPage}&size=${pageSize}`)
-	// 		const { totalPages, data } = response.data
-	// 		setTotalPages(totalPages)
-	// 		setData(data)
-	// 	} catch (error) {
-	// 		console.error('Error fetching data:', error)
-	// 	}
-	// }
+const PaginationComp = ({totalPages, currentPage, setCurrentPage }) => {
 
 	const goToPage = (page) => {
 		setCurrentPage(page)

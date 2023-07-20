@@ -38,7 +38,12 @@ const ProductCard = ({
 					</Row>
 					<Row className='m-0 p-0 mt-2'>
 						<Col className="d-flex justify-content-end">
-							{addedToCart ? (
+							{product.quantity < 1 ? (
+								<Button variant="primary" disabled>
+									Out of Stock
+								</Button>
+							) :
+							addedToCart ? (
 								<Button variant="primary" disabled>
 									Already added
 								</Button>

@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { 
-    getAllOrders, 
+import {
     getOrderById, 
     createOrder, 
     updateOrder, 
@@ -12,7 +11,6 @@ import {
 const router = Router();
 
 // Order routes
-router.get('/', getAllOrders);
 router.get('/user-orders', getAllUserOrders);
 router.post('/order-products', getAllOrderProducts);
 router.get('/:id', getOrderById);

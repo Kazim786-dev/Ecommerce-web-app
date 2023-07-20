@@ -14,19 +14,9 @@ import { useSelector, useDispatch } from 'react-redux'
 //actions
 import { add } from '../../redux/slice/cart/cart-slice'
 
-// const products = [
-// 	{ id: 1, name: 'Product 1', color: 'blue', size: 32, description: 'This is product 1', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 10 },
-// 	{ id: 2, name: 'Product 2', color: 'blue', size: 32, description: 'This is product 2', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 20 },
-// 	{ id: 3, name: 'Product 3', color: 'blue', size: 32, description: 'This is product 3', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 30 },
-// 	{ id: 4, name: 'Product 4', color: 'blue', size: 32, description: 'This is product 4', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 40 },
-// 	{ id: 5, name: 'Product 1', color: 'blue', size: 32, description: 'This is product 1', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 10 },
-// 	{ id: 6, name: 'Product 2', color: 'blue', size: 32, description: 'This is product 2', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 20 },
-// 	{ id: 7, name: 'Product 3', color: 'blue', size: 32, description: 'This is product 3', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 30 },
-// 	{ id: 8, name: 'Product 4', color: 'blue', size: 32, description: 'This is product 4', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80', price: 40 },
-// 	// Add more products as needed
-// ]
-
 const AllProductsPage = ({ user }) => {
+
+	const dispatch = useDispatch()
 
 	//states
 	const [searchTerm, setSearchTerm] = useState('')
@@ -36,21 +26,28 @@ const AllProductsPage = ({ user }) => {
 	const [products, setProducts] = useState([])
 	const [loading, setLoading] = useState(true)
 
+	//states for pagination
+	const [totalPages, setTotalPages] = useState(1)
+	const [currentPage, setCurrentPage] = useState(1)
+	const pageSize =8;
+
 	//redux state
 	const cartProducts = useSelector((state) => state.cart.products)
-	
-	const dispatch = useDispatch()
-
 
 	useEffect( () => {
 		fetchProducts()
-	}, [])
+	},[currentPage])
 
 	const fetchProducts = async () => {
 		try {
-			const response = await axios.get(`${process.env.REACT_APP_DEV_BACKEND_URL}/products/`)
-			setProducts(response.data.products)
-			setLoading(false)
+			setLoading(true)
+			const response = await axios.get(`${process.env.REACT_APP_DEV_BACKEND_URL}/products?page=${currentPage}&size=${pageSize}`)
+			if(response.status===200){
+				const { totalPages, data } = response.data
+				setProducts(data)
+				setTotalPages(totalPages)
+				setLoading(false)
+			}
 		} catch (error) {
 			console.error('Error fetching data:', error)
 		}
@@ -66,7 +63,8 @@ const AllProductsPage = ({ user }) => {
 
 	const filteredProducts = products
 		.filter((product) => {
-			const nameMatch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
+			const nameMatch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+				product.description.toLowerCase().includes(searchTerm.toLowerCase())
 			return nameMatch
 		})
 		.sort((a, b) => {
@@ -131,7 +129,13 @@ const AllProductsPage = ({ user }) => {
 
 							</Row>
 							
-							<Footer className={'d-flex justify-content-between align-items-center ps-1 pe-1'} count={filteredProducts.length} text={`${filteredProducts.length} products found in clothing and accessories`} pageSize={8} url={'/api/data'} />
+							<Footer className={'d-flex justify-content-between align-items-center ps-1 pe-1'}
+								count={filteredProducts.length}
+								text={`${filteredProducts.length} products found in clothing and accessories`}
+								totalPages={totalPages}
+								currentPage={currentPage}
+								setCurrentPage={setCurrentPage}
+							/>
 
 						</Container>
 					</>

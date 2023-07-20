@@ -20,6 +20,10 @@ const OffCanvasComp = ({
 	const [loading,setLoading] = useState(true)
 	const [OrderProducts,setOrderProducts] = useState([])
 
+
+	const date = new Date(orderItem.date);
+	const utcDate = date.toLocaleString('en-US', { timeZone: 'UTC' });
+
 	useEffect(()=>{
 		fetchProducts()
 	},[])
@@ -102,7 +106,7 @@ const OffCanvasComp = ({
 								<hr />
 								<Row className="order-info-row pt-1 pb-2">
 									<Col>
-										<p className='text-styles'>Order Date:</p> {orderItem.date}
+										<p className='text-styles'>Order Date:</p> {utcDate}
 									</Col>
 									<Col>
 										<p className='text-styles'>Order #:</p> {orderItem.orderNumber}

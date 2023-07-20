@@ -37,7 +37,6 @@ const ShoppingCart = ({user}) => {
 
 	//redux State
 	const cartItems = useSelector((state) => state.cart.products)
-	// const user = useSelector((state) => state.customer)
 
 	// Function to handle quantity increase
 	const handleIncrease = (itemId) => {
@@ -80,7 +79,7 @@ const ShoppingCart = ({user}) => {
 		try {
 			const products = cartItems.map((product) => ({
 				product: product._id,
-				quantity: product.quantity,
+				quantity: product.orderQuantity,
 			}))
 
 			const response = await axios.post(
@@ -167,7 +166,7 @@ const ShoppingCart = ({user}) => {
 							padding: '0.38rem 1.875rem',
 						}}
 					>
-						<span className="mx-3">{item.quantity}</span>
+						<span className="mx-3">{item.orderQuantity}</span>
 					</div>
 					<button className="btn btn-sm " style={{ borderColor: '#DFDFDF' }} onClick={() => handleIncrease(item._id)}>
 						<Increase />

@@ -11,29 +11,74 @@ import SignUpPage from '../pages/auth/signup'
 import TotalOrders from '../pages/orders/cust-total-orders'
 
 //components
-import NavbarComp from '../components/navbar'
+import Layout from '../components/layout'
 
 const RouterLinks = ({
 	user }) => {
 
 	return (
-		<>
-			<BrowserRouter>
-				<NavbarComp name={user.name} userPicture={'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80'} />
-				<Routes>
-					<Route path="/" element={<Navigate to='/products' />} />
-					<Route path="/login" element={user.name == '' ? <LoginPage /> : <Navigate to='/products' /> } />
-					<Route path="/signup" element={ user.name == '' ? <SignUpPage /> : <Navigate to='/products' /> } />
-					<Route path="/forget-pass" element={<ForgetPasswordPage />} />
-					<Route path="/new-pass" element={<NewPassPage />} />
-					<Route path="/products" element={<AllProductsPage user={user} />} />
-					<Route path="/cart" element={user.name !== '' ? <CartPage user={user} /> : <Navigate to='/login' />}></Route>
-					<Route path="/total-orders" element={user.name !== '' ? <TotalOrders user={user} /> : <Navigate to='/login' />}></Route>
-					<Route path="*" element={<h1>Page Not Found!</h1>} />
-				</Routes>
-			</BrowserRouter>
-		</>
-	)
+		<BrowserRouter>
+			<Routes>
+				<Route
+					path="/"
+					element={
+						<Layout user={user} showNavbar={true}>
+							<Navigate to="/products" />
+						</Layout>
+					}
+				/>
+				<Route
+					path="/login"
+					element={
+						<Layout user={user} showNavbar={false}>
+							{user.name === '' ? <LoginPage /> : <Navigate to="/products" />}
+						</Layout>
+					}
+				/>
+				<Route
+					path="/signup"
+					element={
+						<Layout user={user} showNavbar={false}>
+							{user.name === '' ? <SignUpPage /> : <Navigate to="/products" />}
+						</Layout>
+					}
+				/>
+				<Route
+					path="/forget-pass"
+					element={<ForgetPasswordPage />}
+				/>
+				<Route
+					path="/new-pass"
+					element={<NewPassPage />}
+				/>
+				<Route
+					path="/products"
+					element={
+						<Layout user={user} showNavbar={true}>
+							<AllProductsPage user={user} />
+						</Layout>
+					}
+				/>
+				<Route
+					path="/cart"
+					element={
+						<Layout user={user} showNavbar={true}>
+							{user.name !== '' ? <CartPage user={user} /> : <Navigate to="/login" />}
+						</Layout>
+					}
+				/>
+				<Route
+					path="/total-orders"
+					element={
+						<Layout user={user} showNavbar={true}>
+							{user.name !== '' ? <TotalOrders user={user} /> : <Navigate to="/login" />}
+						</Layout>
+					}
+				/>
+				<Route path="*" element={<h1>Page Not Found!</h1>} />
+			</Routes>
+		</BrowserRouter>
+	);
 }
 
 export default RouterLinks

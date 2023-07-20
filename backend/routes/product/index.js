@@ -2,7 +2,7 @@ import { Router } from 'express';
 import upload from '../../middleware/multer.js';
 
 import { 
-    getAllProducts, 
+    getProducts, 
     getProductById, 
     createProduct, 
     updateProduct, 
@@ -13,7 +13,7 @@ import authMiddleware from '../../middleware/auth.js'
 const router = Router();
 
 // Product routes
-router.get('/', getAllProducts);
+router.get('/', getProducts);
 router.get('/:id',authMiddleware, getProductById);
 
 // Use the multer middleware to handle the form data (after this iddleware all form data will be in request body)
