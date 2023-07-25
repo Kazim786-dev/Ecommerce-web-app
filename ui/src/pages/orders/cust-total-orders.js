@@ -29,7 +29,7 @@ function TotalOrders({ user }) {
 	const [totalPages, setTotalPages] = useState(0)
 	const [currentPage, setCurrentPage] = useState(1)
 
-	const pageSize = 8;
+	const pageSize = 8
 
 	useEffect(() => {
 		fetchOrders()
@@ -64,9 +64,9 @@ function TotalOrders({ user }) {
 			header: 'Date',
 			width: '17rem',
 			render: (item) => {
-				const date = new Date(item.date);
-				const utcDate = date.toLocaleString('en-US', { timeZone: 'UTC' });
-				return utcDate;
+				const date = new Date(item.date)
+				const utcDate = date.toLocaleString('en-US', { timeZone: 'UTC' })
+				return utcDate
 			}
 		},
 		{

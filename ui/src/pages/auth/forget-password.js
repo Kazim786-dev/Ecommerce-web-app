@@ -21,9 +21,6 @@ function ForgetPasswordPage() {
 	const [emailError, setEmailError] = useState('')
 	const [showAlert, setShowAlert] = useState(false)
 
-	//object to navigate to different pages
-	const navigate = useNavigate()
-
 	const handleSubmit = async(e) => {
 		e.preventDefault()
 		// Perform login logic here
@@ -33,12 +30,12 @@ function ForgetPasswordPage() {
 				email: email
 			})
 
-			if(res.data.status===200){
+			console.log(res)
+			if(res.status===200){
 				setShowAlert(true)
-			}			
-			// navigate('/new-pass')
+			}
 		} catch (error) {
-			//console.log(error)
+			console.log(error)
 		}
 
 		//clear all fields
@@ -82,13 +79,17 @@ function ForgetPasswordPage() {
 				</Row>
 				<Row className="mt-3">
 					<Col>
-						<p className="text-center mb-0 text-styles">No, I remember my password! <Link to='/' className="text-decoration-none">Login</Link></p>
+						<p className="text-center mb-0 text-styles">No, I remember my password! <Link to='/login' className="text-decoration-none">Login</Link></p>
 					</Col>
 				</Row>
 			</Form>
 
 			{showAlert && (
-				<AlertComp variant="success" text="Your account has been created. Instruction sent to your email id." onClose={() => setShowAlert(false)}/>
+				<AlertComp 
+					variant="success" 
+					text="Reset Password Instructions has been sent to your email address." 
+					onClose={() => setShowAlert(false)}
+				/>
 			)}
 
 		</FormContainer>

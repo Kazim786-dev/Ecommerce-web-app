@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
+import axios from 'axios'
 
 // react-ootstrap
 import { Form, Row } from 'react-bootstrap'
+
+//react-router-dom
+import { useParams } from 'react-router-dom'
 
 //components
 import AlertComp from '../../components/alert'
@@ -10,7 +14,7 @@ import FormField from '../../components/input-field'
 import FormContainer from '../../components/formContainer'
 
 //function based component
-function NewPassPage() {
+const NewPassPage = () => {
 
 	//states
 	const initialState = {
@@ -22,32 +26,48 @@ function NewPassPage() {
 	const [passwordError, setPasswordError] = useState('')
 	const [showAlert, setShowAlert] = useState(false)
 
-	const handleSubmit = (e) => {
+
+	// Get the token from the URL using useParams
+	const { token } = useParams()
+
+
+	const handleSubmit = async (e) => {
 		e.preventDefault()
 
 		// Perform login logic here
 		if (validatePassword()) {
-			setShowAlert(true)
-		}
 
+			try {
+				// Send the token and new password in the request body
+				const response = await axios.patch(`${process.env.REACT_APP_DEV_BACKEND_URL}/users/update-password`, { token, newPassword: formData.password })
+				console.log(response)
+				if (response.status === 200) {
+					setShowAlert(true)
+				}
+			} catch (error) {
+				console.log('Error updating password. Please try again.\n'+error)
+			}
+
+
+		}
 		// Clear all fields
 		setFormData(initialState)
 	}
 
 	const validatePassword = () => {
 		const { password } = formData
-		const hasUppercase = /[A-Z]/.test(password)
-		const hasLowercase = /[a-z]/.test(password)
-		const hasNumber = /\d/.test(password)
-		const hasSymbol = /[!@#$%^&*]/.test(password)
+		const isValidPassword = /[A-Z]/.test(password)
+			&& /[a-z]/.test(password)
+			&& /\d/.test(password)
+			&& /[!@#$%^&*]/.test(password)
 
-		if (!(hasUppercase && hasLowercase && hasNumber && hasSymbol)) {
+		if (!isValidPassword) {
 			setPasswordError('Password must contain a capital letter, small letter, number, and symbol')
-			return false
 		} else {
 			setPasswordError('')
-			return true
 		}
+
+		return isValidPassword
 	}
 
 	const handleFieldChange = (e) => {
@@ -88,14 +108,25 @@ function NewPassPage() {
 
 				</Row>
 				<Row className='m-0 mt-4'>
-					<CustomButton variant="primary" type="submit" className="w-100">
-                        Reset Password
+					<CustomButton
+						variant="primary"
+						type="submit"
+						className="w-100"
+						isDisabled={passwordError!==''
+							|| formData.password === ''
+							|| formData.password !== formData.confirmPassword
+						}>
+						Reset Password
 					</CustomButton>
 				</Row>
 			</Form>
 
 			{showAlert && (
-				<AlertComp variant="success" text="Your password has been updated.  Please check your email." onClose={() => setShowAlert(false)} />
+				<AlertComp
+					variant="success"
+					text="Your password has been updated. Please check your email."
+					onClose={() => setShowAlert(false)}
+				/>
 			)}
 
 		</FormContainer>

@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
+import debounce from 'lodash.debounce'
 
 //react-bootstrap
 import { Container, Row, Col, Form } from 'react-bootstrap'
 
 //components
+import AlertComp from '../../components/alert'
 import Footer from '../../components/footer'
 import ProductCard from '../../components/product/ProductCard'
 import SpinnerComp from '../../components/spinner'
@@ -20,68 +22,81 @@ const AllProductsPage = ({ user }) => {
 
 	//states
 	const [searchTerm, setSearchTerm] = useState('')
-	const [priceFilter, setPriceFilter] = useState('')
-	// const [cartItems, setCartItems] = useState([])
-
+	const [priceFilter, setPriceFilter] = useState('desc')
+	const [fetchProductError, setFetchProductError] = useState(false)
+	// state to hande if product is added to cart
+	const [addedToCart, setAddedToCart] = useState(false)
+	const [errorText, setErrorText] = useState('')
 	const [products, setProducts] = useState([])
 	const [loading, setLoading] = useState(true)
 
 	//states for pagination
 	const [totalPages, setTotalPages] = useState(1)
 	const [currentPage, setCurrentPage] = useState(1)
-	const pageSize =8;
+	const pageSize = 8
 
 	//redux state
 	const cartProducts = useSelector((state) => state.cart.products)
 
-	useEffect( () => {
+	useEffect(() => {
 		fetchProducts()
-	},[currentPage])
+	}, [currentPage, priceFilter,searchTerm])
 
 	const fetchProducts = async () => {
+		console.log('search =' + searchTerm)
+		let response = ''
 		try {
 			setLoading(true)
-			const response = await axios.get(`${process.env.REACT_APP_DEV_BACKEND_URL}/products?page=${currentPage}&size=${pageSize}`)
-			if(response.status===200){
+			setFetchProductError(false)
+			// Make an API request to route with the selected price filter and searchTerm as query parameters
+			response = await axios.get(
+				`${process.env.REACT_APP_DEV_BACKEND_URL}/products?page=${currentPage}&size=${pageSize}&sort=${priceFilter}&name=${searchTerm}`
+			)
+			if (response.status === 200) {
 				const { totalPages, data } = response.data
 				setProducts(data)
 				setTotalPages(totalPages)
-				setLoading(false)
 			}
+			else {
+				setFetchProductError(true)
+				setErrorText('Error in fetching products')
+			}
+
 		} catch (error) {
-			console.error('Error fetching data:', error)
+			if (error.response.status === 404) {
+				setErrorText('No product with this name')
+			}
+			else {
+				setErrorText('Error in fetching products')
+			}
+			setFetchProductError(true)
+			// console.error('Error fetching data:', error)
 		}
+		setLoading(false)
 	}
 
-	const handleSearchChange = (event) => {
-		setSearchTerm(event.target.value)
-	}
+	const handleSearchChange = debounce((event) => {
+		const { value } = event.target;
+		setSearchTerm(value);
+	},1000);
 
 	const handlePriceFilterChange = (event) => {
 		setPriceFilter(event.target.value)
 	}
 
-	const filteredProducts = products
-		.filter((product) => {
-			const nameMatch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-				product.description.toLowerCase().includes(searchTerm.toLowerCase())
-			return nameMatch
-		})
-		.sort((a, b) => {
-			if (priceFilter === 'HighToLow') {
-				return b.price - a.price // Sort in descending order (high to low)
-			} else {
-				return a.price - b.price // Sort in ascending order (low to high)
-			}
-		})
-
 	const addToCart = (product) => {
 		const foundProduct = cartProducts.find((item) => item._id == product._id)
 		//check not already added
 		if (!foundProduct) {
-			const item = filteredProducts.find((p) => p._id === product._id)
+			const item = products.find((p) => p._id === product._id)
 			dispatch(add(item))
+			setAddedToCart(true)
 		}
+	}
+
+	const isAlreadyAdded = (product) => {
+		const foundProduct = cartProducts.find((item) => item._id == product._id)
+		return foundProduct ? true : false
 	}
 
 	return (
@@ -100,15 +115,15 @@ const AllProductsPage = ({ user }) => {
 								<Col md="auto" className="d-flex align-items-center">
 									<Form.Label className="me-2"><b>Search:</b></Form.Label>
 									<Form.Group className="mb-1">
-										<Form.Control type="text" placeholder="Search by name" value={searchTerm} onChange={handleSearchChange} />
+										<Form.Control type="text" placeholder="Search by name" onChange={handleSearchChange} />
 									</Form.Group>
 								</Col>
 								<Col md="auto" className="d-flex align-items-center pe-0">
 									<Form.Label className="me-2"><b>Sort by:</b></Form.Label>
 									<Form.Group className="mb-1">
 										<Form.Select value={priceFilter} onChange={handlePriceFilterChange}>
-											<option value="LowToHigh">Low to High</option>
-											<option value="HighToLow">High to Low</option>
+											<option value="asc">Low to High</option>
+											<option value="desc">High to Low</option>
 										</Form.Select>
 									</Form.Group>
 								</Col>
@@ -117,26 +132,32 @@ const AllProductsPage = ({ user }) => {
 							{/*Map all the products */}
 							<Row className="justify-content-center">
 								{/* Desktop: Display 4 products per row 
-								Tablet: 2 Products per row
-								Mobile: 1 product per row */}
-								{filteredProducts.map((product,index) => (
+									Tablet: 2 Products per row
+									Mobile: 1 product per row */}
+								{products.map((product, index) => (
 									<Col key={index} xl={3} lg={6} md={6} sm={12} className="d-flex justify-content-center ps-0 pe-0 mb-5">
 										<div>
-											<ProductCard name={user.name} product={product} addToCart={addToCart} />
+											<ProductCard name={user.name} product={product} addToCart={addToCart} addedToCart={isAlreadyAdded(product)} />
 										</div>
 									</Col>
 								))}
 
 							</Row>
-							
+
 							<Footer className={'d-flex justify-content-between align-items-center ps-1 pe-1'}
-								count={filteredProducts.length}
-								text={`${filteredProducts.length} products found in clothing and accessories`}
+								count={products.length}
+								text={`${products.length} products found in clothing and accessories`}
 								totalPages={totalPages}
 								currentPage={currentPage}
 								setCurrentPage={setCurrentPage}
 							/>
-
+							{fetchProductError && (
+								<AlertComp
+									variant="danger"
+									text={errorText}
+									onClose={() => setFetchProductError(false)}
+								/>
+							)}
 						</Container>
 					</>
 				)

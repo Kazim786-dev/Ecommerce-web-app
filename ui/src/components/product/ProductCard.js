@@ -6,20 +6,17 @@ import { useNavigate } from 'react-router-dom'
 const ProductCard = ({
 	product,
 	addToCart,
-	name }) => {
-
+	name,
+	addedToCart,
+}) => {
 
 	const navigate = useNavigate()
-
-	// state to hande if product is added to cart
-	const [addedToCart, setAddedToCart] = useState(false)
 
 	const handleAddToCart = () => {
 		if (name == '')
 			navigate('/login')
 		else {
 			addToCart(product)
-			setAddedToCart(true)
 		}
 	}
 
@@ -43,15 +40,15 @@ const ProductCard = ({
 									Out of Stock
 								</Button>
 							) :
-							addedToCart ? (
-								<Button variant="primary" disabled>
+								addedToCart ? (
+									<Button variant="primary" disabled>
 									Already added
-								</Button>
-							) : (
-								<Button variant="primary" onClick={handleAddToCart}>
+									</Button>
+								) : (
+									<Button variant="primary" onClick={handleAddToCart}>
 									Add to Cart
-								</Button>
-							)}
+									</Button>
+								)}
 						</Col>
 					</Row>
 				</Row>

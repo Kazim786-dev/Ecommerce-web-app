@@ -1,5 +1,4 @@
 import { React, useState, useMemo } from 'react'
-import axios from 'axios'
 
 import { Container, Form, Image } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
@@ -17,20 +16,24 @@ import AlertComp from '../../components/alert'
 import CustomButton from '../../components/button'
 import CartTable from '../../components/table'
 import DeleteConfirmationModal from '../../components/modal/delete-confirmation'
+import SpinnerComp from '../../components/spinner'
 
 //redux
-import { remove, increase, decrease, empty } from '../../redux/slice/cart/cart-slice'
+import { remove, increase, decrease, placeOrder } from '../../redux/slice/cart/cart-slice'
 import { useDispatch, useSelector } from 'react-redux'
 
 //component
-const ShoppingCart = ({user}) => {
+const ShoppingCart = ({ user }) => {
 
-	const taxRate = 0.1
+	const taxRate = 0.1 // Assuming tax rate of 10%
 
 	// states
 	const [deleteItemId, setDeleteItemId] = useState(null)
 	const [showDeleteModal, setShowDeleteModal] = useState(false)
 	const [orderPlaced, setOrderPlaced] = useState(false)
+	const [orderError, setOrderError] = useState(false)
+	const [errorText, setErrorText] = useState('')
+	const [loading, setLoading] = useState(false)
 
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
@@ -40,7 +43,17 @@ const ShoppingCart = ({user}) => {
 
 	// Function to handle quantity increase
 	const handleIncrease = (itemId) => {
-		dispatch(increase(itemId))
+		const product = cartItems.find((product) => product._id === itemId)
+		if(product && (product.orderQuantity + 1)> product.quantity){
+			setOrderError(true)
+			setErrorText('Not enough quantity')
+			setTimeout(() => {
+				setOrderError(false)
+			}, 2000)
+		}
+		else{
+			dispatch(increase(itemId))
+		}
 	}
 
 	// Function to handle quantity decrease
@@ -50,12 +63,13 @@ const ShoppingCart = ({user}) => {
 
 	// Function to calculate subtotal
 	const calculateSubTotal = useMemo(() => {
-		return cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
+		const subTotal = cartItems.reduce((total, item) => total + (item.price * item.orderQuantity), 0)
+		return subTotal
 	}, [cartItems])
 
 	const total = useMemo(() => {
 		const subTotal = calculateSubTotal
-		const tax = (subTotal * taxRate) // Assuming tax rate of 10%
+		const tax = (subTotal * taxRate)
 		return subTotal + tax
 	}, [cartItems])
 
@@ -75,37 +89,69 @@ const ShoppingCart = ({user}) => {
 
 	const handlePlaceOrder = async () => {
 
-		// Handle place order logic
 		try {
+			setLoading(true)
 			const products = cartItems.map((product) => ({
 				product: product._id,
 				quantity: product.orderQuantity,
 			}))
 
-			const response = await axios.post(
-				`${process.env.REACT_APP_DEV_BACKEND_URL}/orders`,
-				{
-					products,
-					totalAmount: total.toFixed(2),
-					status: 'Pending',
-				},
-				{
-					headers: {
-						Authorization: `Bearer ${user.token}`,
-					},
-				}
+			const orderPlaced = dispatch(
+				placeOrder(products, total, user.token)
 			)
 
-			if (response.status === 201) {
+			if (orderPlaced) {
 				setOrderPlaced(true)
-				dispatch(empty())
+				setOrderError(false)
+				setErrorText('')
 				navigate('/total-orders')
+			} else {
+				setOrderError(true)
+				setErrorText('Error occured in placing the order')
+				setOrderPlaced(false)
 			}
 
 		} catch (error) {
-			console.log(error)
+			setOrderError(true)
+			setErrorText('Error occured in placing the order')
 			setOrderPlaced(false)
 		}
+
+		setLoading(false)
+
+		// Handle place order logic
+		// try {
+		// 	setLoading(true)
+		// 	const products = cartItems.map((product) => ({
+		// 		product: product._id,
+		// 		quantity: product.orderQuantity,
+		// 	}))
+
+		// 	const response = await axios.post(
+		// 		`${process.env.REACT_APP_DEV_BACKEND_URL}/orders`,
+		// 		{
+		// 			products,
+		// 			totalAmount: total.toFixed(2),
+		// 			status: 'Pending',
+		// 		},
+		// 		{
+		// 			headers: {
+		// 				Authorization: `Bearer ${user.token}`,
+		// 			},
+		// 		}
+		// 	)
+
+		// 	if (response.status === 201) {
+		// 		setOrderPlaced(true)
+		// 		dispatch(empty())
+		// 		navigate('/total-orders')
+		// 	}
+		// 	setLoading(false)
+
+		// } catch (error) {
+		// 	console.log(error)
+		// 	setOrderPlaced(false)
+		// }
 	}
 
 	// table column styling
@@ -192,33 +238,50 @@ const ShoppingCart = ({user}) => {
 	return (
 
 		<>
-			<Container fluid className="pt-0 p-5">
-				<div className="d-flex align-items-center heading-container">
-					<Link to='/products'><ArrowLeft style={{ cursor: 'pointer' }} /></Link>
-					<h1 className="cart-heading ">Your Shopping Bag</h1>
-				</div>
+			{loading ? (
+				<SpinnerComp />
+			) : (
 
-				<CartTable data={cartItems} columns={columns} />
+				<Container fluid className="pt-0 p-5">
+					<div className="d-flex align-items-center heading-container">
+						<Link to='/products'><ArrowLeft style={{ cursor: 'pointer' }} /></Link>
+						<h1 className="cart-heading ">Your Shopping Bag</h1>
+					</div>
 
-				<div className="total-container">
-					<div ><p>Sub Total:</p><b>${calculateSubTotal.toFixed(2)}</b></div>
-					<div ><p>Tax:</p><b>${(calculateSubTotal * taxRate).toFixed(2)}</b></div>
-					<div ><p>Total:</p><b>${total.toFixed(2)}</b></div>
-				</div>
-				<div className="d-flex justify-content-end">
-					<CustomButton className="custom-button" isDisabled={cartItems.length<=0} variant="primary" type="submit" onClick={handlePlaceOrder}>
-						Place Order
-					</CustomButton>
-				</div>
+					<CartTable data={cartItems} columns={columns} />
 
-				{/* show the modal for confirmation on click of delte icon */}
-				{showDeleteModal && <DeleteConfirmationModal showDeleteModal={showDeleteModal}
-					setShowDeleteModal={setShowDeleteModal} handleDeleteConfirmation={handleDeleteConfirmation} />}
+					<div className="total-container">
+						<div ><p>Sub Total:</p><b>${calculateSubTotal.toFixed(2)}</b></div>
+						<div ><p>Tax:</p><b>${(calculateSubTotal * taxRate).toFixed(2)}</b></div>
+						<div ><p>Total:</p><b>${total.toFixed(2)}</b></div>
+					</div>
+					<div className="d-flex justify-content-end">
+						<CustomButton className="custom-button" isDisabled={cartItems.length <= 0} variant="primary" type="submit" onClick={handlePlaceOrder}>
+							Place Order
+						</CustomButton>
+					</div>
 
-				{orderPlaced && (
-					<AlertComp variant="success" text="Awesome, Your order has been placed successfully." onClose={() => setOrderPlaced(false)} />
-				)}
-			</Container>
+					{/* show the modal for confirmation on click of delte icon */}
+					{showDeleteModal && <DeleteConfirmationModal showDeleteModal={showDeleteModal}
+						setShowDeleteModal={setShowDeleteModal} handleDeleteConfirmation={handleDeleteConfirmation} />}
+
+					{orderPlaced && (
+						<AlertComp 
+							variant="success" 
+							text="Awesome, Your order has been placed successfully." 
+							onClose={() => setOrderPlaced(false)} 
+						/>
+					)}
+					{orderError && (
+						<AlertComp 
+							variant="danger" 
+							text={errorText}
+							onClose={() => setOrderError(false)} 
+						/>
+					)}
+				</Container>
+			)
+			}
 		</>
 
 	)

@@ -57,7 +57,6 @@ const getOrderById = async (req, res) => {
 const createOrder = async (req, res) => {
   const { products, totalAmount, status } = req.body;
   try {
-    let total = 0;
     const foundUser = req.user.user
 
     if (!foundUser) {
@@ -84,15 +83,12 @@ const createOrder = async (req, res) => {
           error: `Invalid quantity for product with ID ${p.product}. Quantity should be between 1 and ${product.quantity}.`,
         });
       }
-      else {
-        total += (product.price)*(p.quantity)
-      }
     }
 
     const newOrder = new Order({
       user: foundUser._id,
       products,
-      totalAmount:total,
+      totalAmount,
       status
     });
 
@@ -210,5 +206,6 @@ module.exports = {
   createOrder,
   updateOrder,
   deleteOrder,
-  getAllOrderProducts
+  getAllOrderProducts,
+  updateProductQuantity
 }

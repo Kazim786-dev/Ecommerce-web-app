@@ -13,7 +13,6 @@ import {
   } from '../../controllers/user/index.js';
 
 // User routes
-
 router.post('/verify-mail', verifyMail);
 router.patch('/update-password', updatePassword);
 

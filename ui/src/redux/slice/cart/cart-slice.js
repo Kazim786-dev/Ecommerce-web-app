@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import { createSlice } from '@reduxjs/toolkit'
 
 const cart = {
@@ -43,6 +45,33 @@ export const cartSlice = createSlice({
 		}
 	}
 })
+
+export const placeOrder = (products, totalAmount, token) => async (dispatch) => {
+	try {
+		const response = await axios.post(
+			`${process.env.REACT_APP_DEV_BACKEND_URL}/orders`,
+			{
+				products,
+				totalAmount: totalAmount.toFixed(2),
+				status: 'Pending',
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			}
+		)
+
+		if (response.status === 201) {
+			dispatch(empty())
+			return true // Indicate successful order placement
+		}
+	} catch (error) {
+		console.log(error)
+	}
+	return false // Indicate order placement failure
+}
+
 
 // Action creators are generated for each case reducer function
 export const { add, remove, increase, decrease, empty } = cartSlice.actions

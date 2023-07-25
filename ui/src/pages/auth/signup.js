@@ -36,12 +36,12 @@ function SignUpPage() {
 				mobile: formData.mobile,
 				name: formData.name
 			})
-			if (res.data.token) {
-				setShowAlert(false)
+			if (res.status===201) {
+				setShowAlert(true)
 			}
 		}
 		catch (error) {
-			setShowAlert(true)
+			setShowAlert(false)
 		}
 
 		setFormData({
@@ -55,7 +55,8 @@ function SignUpPage() {
 	}
 
 	const validateEmail = () => {
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+		// const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+		const  emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/
 		if (!emailRegex.test(formData.email)) {
 			setEmailError('Enter a valid email address')
 		} else {

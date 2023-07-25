@@ -1,4 +1,8 @@
 import User from '../../models/user/index.js';
+import jwt from 'jsonwebtoken'
+import { sendEmail } from '../../mail/index.js';
+
+const jwtSecret = process.env.secret_key
 
 // Controller functions
 const getAllUsers = async (req, res) => {
@@ -34,7 +38,7 @@ const createUser = async (req, res) => {
       res.status(500).json({ message: 'Email already exists.' })
     }
 
-    else{
+    else {
       const newUser = new User({
         name,
         email,
@@ -85,30 +89,54 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const generateResetToken = (email) => {
+  return jwt.sign({ email }, jwtSecret, { expiresIn: '10m' });
+};
+
 const verifyMail = async (req, res) => {
   const { email } = req.body;
 
   // Logic to verify email
   try {
-    const user = await User.findOne({email:email})
-    if(!user){
+    const user = await User.findOne({ email: email })
+    if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.status(200).json({ message: 'Email verification successful' });
+    // Generate a JWT token for password reset
+    const resetToken = generateResetToken(email);
+
+    // Compose the email with the link containing the token
+    const resetLink = `http://localhost:3000/new-pass/${resetToken}`;
+
+    // Compose the email content
+    const emailContent = `<p>Click the link below to reset your password:</p><a href="${resetLink}">${resetLink}</a>`;
+
+    sendEmail(user.email, 'Password Reset', emailContent)
+      .then(() => {
+        // Email sent successfully, send a success response
+        res.status(200).json({ message: 'Email verification link sent successfully' });
+      })
+      .catch((error) => {
+        // Error sending the email, send an error response
+        res.status(500).json({ error: 'An error occurred while sending the email' });
+      });
+
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred while verifying email' });
+    res.status(500).json({ error: 'An error occurred while verifying email.\n' });
   }
 };
 
 const updatePassword = async (req, res) => {
-  const { email, newPassword } = req.body;
+  const { token, newPassword } = req.body;
 
   try {
-    // Find the user in the database based on the user's ID
-    const user = await User.findOne({email:email})  
-    // wait to return promise is necessary otherwise condition will always be true
-    if(!user){
+    // Verify the token and extract the email from it
+    const decodedToken = jwt.verify(token, jwtSecret);
+    const email = decodedToken.email;
+    // Find the user in the database based on the email
+    const user = await User.findOne({ email: email });
+    if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
@@ -116,9 +144,15 @@ const updatePassword = async (req, res) => {
     user.password = newPassword;
     await user.save();
 
+    // Compose the email content
+    const emailContent = `<p>Your new password has been changed. Do not share it with anyone</p>`;
+
+    // Send the email using the generic sendEmail function
+    sendEmail(user.email, 'Password Changed Successfully', emailContent);
+
     res.status(200).json({ message: 'Password updated successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred while updating password. '+ error });
+    res.status(500).json({ error: 'An error occurred while updating password. ' + error });
   }
 };
 

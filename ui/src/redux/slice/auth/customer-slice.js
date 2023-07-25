@@ -22,6 +22,7 @@ export const customerSlice = createSlice({
 		},
 		logout:(state) => {
 			Object.assign(state, customer)
+			
 		}
 	}
 })

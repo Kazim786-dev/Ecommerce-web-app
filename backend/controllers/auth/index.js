@@ -1,6 +1,7 @@
 
 import jwt from 'jsonwebtoken';
 import User from '../../models/user/index.js';
+import { sendEmail } from '../../mail/index.js';
 
 const { secret_key } = process.env
 
@@ -30,9 +31,18 @@ const Signup = async (req, res) => {
         { expiresIn: '3h' }
       );
 
+
+      // Compose the email content
+      const emailContent = `<p>Welcome ${newUser.name} to this amazing e-commerce platform.<br/>
+      We are absolutely thrilled to have you join our ever-growing family of online shoppers.<br/>
+      Congratulations on successfully creating your account! 🎉
+      Note: Do not share your password with anyone</p>`;
+
+      // Send the email using the generic sendEmail function
+      sendEmail(newUser.email, 'Account Created Successfully', emailContent);
+
       // Return the token
       res.status(201).json({ token });
-
     }
 
   } catch (error) {

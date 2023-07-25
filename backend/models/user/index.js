@@ -20,6 +20,8 @@ const UserSchema = new Schema({
     required: true
   }
   // add more fields like profile picture, etc. as per your requirements
+},{
+  timestamps:true
 });
 
 UserSchema.pre(

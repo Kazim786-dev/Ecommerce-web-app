@@ -7,26 +7,26 @@ import Product from '../../models/product/index.js';
 import Category from '../../models/category/index.js';
 
 // Controller functions
-const getProducts = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1; // Default page 1 if not provided
-    const pageSize = parseInt(req.query.size) || 8; // Default size 8 if not provided
+// const getProducts = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1; // Default page 1 if not provided
+//     const pageSize = parseInt(req.query.size) || 8; // Default size 8 if not provided
 
-    const totalCount = await Product.countDocuments();
-    const totalPages = Math.ceil(totalCount / pageSize);
+//     const totalCount = await Product.countDocuments();
+//     const totalPages = Math.ceil(totalCount / pageSize);
     
-    const products = await Product.find()
-      .skip((page - 1) * pageSize)
-      .limit(pageSize);
+//     const products = await Product.find()
+//       .skip((page - 1) * pageSize)
+//       .limit(pageSize);
 
-      res.status(200).json({
-        totalPages,
-        data: products,
-      });
-  } catch (error) {
-    res.status(500).json({ error: 'An error occurred while fetching products.' });
-  }
-};
+//       res.status(200).json({
+//         totalPages,
+//         data: products,
+//       });
+//   } catch (error) {
+//     res.status(500).json({ error: 'An error occurred while fetching products.' });
+//   }
+// };
 
 const getProductById = async (req, res) => {
   const { id } = req.params;
@@ -147,10 +147,101 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const getProductsByName = async (req, res) => {
+  try {
+    const query = req.query.name;
+    if (!query) {
+      return res.status(400).json({ error: 'Name query parameter is missing.' });
+    }
+
+    const page = parseInt(req.query.page) || 1; // Default page 1 if not provided
+    const pageSize = parseInt(req.query.size) || 8; // Default size 8 if not provided
+
+    const totalCount = await Product.countDocuments();
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: query, $options: 'i' } }, // Case-insensitive search on name
+        { description: { $regex: query, $options: 'i' } }, // Case-insensitive search on description
+      ],
+    }).skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: 'No products found with the provided name.' });
+    }
+
+    res.status(200).json({ 
+      totalPages,
+      data: products,
+    });
+  } catch (error) {
+    console.error('Error while fetching products by name:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+const getProducts = async (req, res) => {
+  try {
+    const sortOrder = req.query.sort; // The query parameter for sorting ('asc' or 'desc')
+    if (!sortOrder || (sortOrder !== 'asc' && sortOrder !== 'desc')) {
+      return res.status(400).json({ error: 'Invalid sort order. Use "asc" or "desc".' });
+    }
+
+    const page = parseInt(req.query.page) || 1; // Default page 1 if not provided
+    const pageSize = parseInt(req.query.size) || 8; // Default size 8 if not provided
+
+    const totalCount = await Product.countDocuments();
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    const sortField = 'price'; // Default sort field (you can change this to any other field)
+
+    const sortOptions = {};
+    sortOptions[sortField] = sortOrder === 'asc' ? 1 : -1;
+
+    let products =[]
+
+    const queryName = req.query.name;
+    if (queryName) {
+
+      const findQuery = {
+        $or: [
+          { name: { $regex: queryName, $options: 'i' } }, // Case-insensitive search on name
+          { description: { $regex: queryName, $options: 'i' } }, // Case-insensitive search on description
+        ],
+      }
+
+      products = await Product.find(findQuery)
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+    }
+    else{
+       products = await Product.find()
+      .sort(sortOptions)
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+    }
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: 'No products found.' });
+    }
+
+    res.status(200).json({ 
+      totalPages,
+      data: products,
+    });
+  } catch (error) {
+    console.error('Error while fetching products:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
 module.exports = {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getProductsByName
 }

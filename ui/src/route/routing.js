@@ -48,7 +48,7 @@ const RouterLinks = ({
 					element={<ForgetPasswordPage />}
 				/>
 				<Route
-					path="/new-pass"
+					path="/new-pass/:token"
 					element={<NewPassPage />}
 				/>
 				<Route
@@ -78,7 +78,7 @@ const RouterLinks = ({
 				<Route path="*" element={<h1>Page Not Found!</h1>} />
 			</Routes>
 		</BrowserRouter>
-	);
+	)
 }
 
 export default RouterLinks

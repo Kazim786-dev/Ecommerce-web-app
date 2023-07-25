@@ -21,8 +21,8 @@ const OffCanvasComp = ({
 	const [OrderProducts,setOrderProducts] = useState([])
 
 
-	const date = new Date(orderItem.date);
-	const utcDate = date.toLocaleString('en-US', { timeZone: 'UTC' });
+	const date = new Date(orderItem.date)
+	const utcDate = date.toLocaleString('en-US', { timeZone: 'UTC' })
 
 	useEffect(()=>{
 		fetchProducts()

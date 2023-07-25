@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect } from 'react'
+import React from 'react'
+
 import { Navbar, Container, Nav, Badge, Image } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 
@@ -10,21 +11,28 @@ import { ReactComponent as Bell } from '../../static/images/svg/Bell.svg'
 //componenets
 import NavDropdownComp from '../nav-dropdown'
 
-// import { logout } from '../../redux/slice/auth/customer-slice'
-import { useSelector } from 'react-redux'
+import { logout } from '../../redux/slice/auth/customer-slice'
+import { empty } from '../../redux/slice/cart/cart-slice'
+
+import { useSelector, useDispatch } from 'react-redux'
 
 const NavbarComp = ({
 	user,
 	userPicture,
 }) => {
 
+	const dispatch = useDispatch()
 	const cartProducts = useSelector((state) => state.cart.products)
 
 	//drop down items
 	const dropdownItems = [
 		{ to: '/total-orders', label: 'Orders' },
 		'divider',
-		{ to: '/login', label: 'Logout', onClick: '()=>dispatch(logout())' }
+		{ to: '/login', label: 'Logout', onClick: ()=>{
+			dispatch(logout())
+			dispatch(empty())
+		} 
+		}
 	]
 
 	return (
