@@ -16,7 +16,7 @@ import FormContainer from '../../components/formContainer'
 
 //redux
 import { useDispatch } from 'react-redux'
-import { login } from '../../redux/slice/auth/customer-slice'
+import { login } from '../../redux/slice/auth/user-slice'
 
 //function based component
 const LoginPage = () => {
@@ -50,7 +50,9 @@ const LoginPage = () => {
 					password,
 					name: res.data.user.name,
 					mobile: res.data.user.mobile,
-					token: res.data.token
+					token: res.data.token,
+					rememberMe: formData.remember,
+					role: res.data.user.role
 				}))
 				setShowAlert(false)
 			}

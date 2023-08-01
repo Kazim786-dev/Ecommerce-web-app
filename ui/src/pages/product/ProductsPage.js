@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import debounce from 'lodash.debounce'
 
@@ -39,11 +39,14 @@ const AllProductsPage = ({ user }) => {
 	const cartProducts = useSelector((state) => state.cart.products)
 
 	useEffect(() => {
-		fetchProducts()
-	}, [currentPage, priceFilter,searchTerm])
+		debouncedFetchData()
+		// Cleanup the debounced function when the component is unmounted
+		return () => {
+			debouncedFetchData.cancel()
+		}
+	}, [currentPage, priceFilter, searchTerm])
 
 	const fetchProducts = async () => {
-		console.log('search =' + searchTerm)
 		let response = ''
 		try {
 			setLoading(true)
@@ -75,10 +78,14 @@ const AllProductsPage = ({ user }) => {
 		setLoading(false)
 	}
 
-	const handleSearchChange = debounce((event) => {
-		const { value } = event.target;
-		setSearchTerm(value);
-	},1000);
+	// Debounced version of fetchProducts
+	const debouncedFetchData = debounce(fetchProducts, 1000)
+	
+	const handleSearchChange = (event) => {
+		const { value } = event.target
+		setSearchTerm(value)
+		setCurrentPage(1)
+	}
 
 	const handlePriceFilterChange = (event) => {
 		setPriceFilter(event.target.value)
@@ -106,7 +113,7 @@ const AllProductsPage = ({ user }) => {
 			) :
 				(
 					<>
-						<Container fluid className='pt-0 p-5'>
+						<Container fluid className='pt-0 p-5 mt-5'>
 
 							<Row className="mb-3 m-0 ps-1 pe-1" >
 								<Col className="d-flex justify-content-start ps-0">
@@ -115,7 +122,7 @@ const AllProductsPage = ({ user }) => {
 								<Col md="auto" className="d-flex align-items-center">
 									<Form.Label className="me-2"><b>Search:</b></Form.Label>
 									<Form.Group className="mb-1">
-										<Form.Control type="text" placeholder="Search by name" onChange={handleSearchChange} />
+										<Form.Control type="text" value={searchTerm} placeholder="Search by name" onChange={handleSearchChange} />
 									</Form.Group>
 								</Col>
 								<Col md="auto" className="d-flex align-items-center pe-0">
@@ -129,7 +136,7 @@ const AllProductsPage = ({ user }) => {
 								</Col>
 							</Row>
 
-							{/*Map all the products */}
+							{/*Map all products */}
 							<Row className="justify-content-center">
 								{/* Desktop: Display 4 products per row 
 									Tablet: 2 Products per row
@@ -145,7 +152,6 @@ const AllProductsPage = ({ user }) => {
 							</Row>
 
 							<Footer className={'d-flex justify-content-between align-items-center ps-1 pe-1'}
-								count={products.length}
 								text={`${products.length} products found in clothing and accessories`}
 								totalPages={totalPages}
 								currentPage={currentPage}

@@ -3,8 +3,8 @@ import { Schema, model } from 'mongoose';
 const productSchema = new Schema({
   name: {
     type: String,
-    required: true,
-    unique:true
+    // required: true,
+    // unique:true
   },
   description: {
     type: String,
@@ -21,7 +21,7 @@ const productSchema = new Schema({
   category: {
     type: Schema.Types.ObjectId,
     ref: 'Category',
-    required: true
+    // required: true
   },
   image:{
     type: String,
@@ -29,12 +29,14 @@ const productSchema = new Schema({
   },
   color:{
     type:String,
-    required:true
+    required:true,
+    default:'Black'
   },
   size:{
     type:String,
-    enum:['XS','S','M','L','XL','XXL'],
-    required:true
+    enum:['XS','S','M','L','XL','XXL','All'],
+    // required:true,
+    default:'L'
   }
 },{
   timestamps:true

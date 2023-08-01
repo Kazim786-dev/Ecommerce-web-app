@@ -31,10 +31,10 @@ function SignUpPage() {
 
 		try {
 			const res = await axios.post(`${process.env.REACT_APP_DEV_BACKEND_URL}/auth/signup`, {
+				name: formData.name,
 				email: formData.email,
 				password: formData.password,
 				mobile: formData.mobile,
-				name: formData.name
 			})
 			if (res.status===201) {
 				setShowAlert(true)

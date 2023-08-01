@@ -15,7 +15,9 @@ const OffCanvasComp = ({
 	show,
 	setShow,
 	orderItem,
-	user }) => {
+	name,
+	token
+}) => {
 
 	const [loading,setLoading] = useState(true)
 	const [OrderProducts,setOrderProducts] = useState([])
@@ -39,15 +41,15 @@ const OffCanvasComp = ({
 					},
 					{
 						headers: {
-							Authorization: `Bearer ${user.token}`,
+							Authorization: `Bearer ${token}`,
 						},
 					}
 				)
 
 				if(response.status===200){
 					setOrderProducts(response.data)
-					setLoading(false)
 				}
+				setLoading(false)
 			}
 		}
 		catch(error){
@@ -112,10 +114,10 @@ const OffCanvasComp = ({
 										<p className='text-styles'>Order #:</p> {orderItem.orderNumber}
 									</Col>
 									<Col>
-										<p className='text-styles'>User:</p> {user.name}
+										<p className='text-styles'>User:</p> {name}
 									</Col>
 									<Col>
-										<p className='text-styles'>Products Count:</p> {orderItem.products.length}
+										<p className='text-styles'>Products:</p> {orderItem.products.length}
 									</Col>
 									<Col>
 										<p className='text-styles'>Amount:</p> {'$'+orderItem.totalAmount.toFixed(2)}

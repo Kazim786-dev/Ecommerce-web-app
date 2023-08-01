@@ -50,12 +50,11 @@ function TotalOrders({ user }) {
 				const { totalPages, data } = response.data
 				setOrderItems(data)
 				setTotalPages(totalPages)
-				setLoading(false)
 			}
-			
 		} catch (error) {
 			console.error('Error fetching data:', error)
 		}
+		setLoading(false)
 	}
 
 	// table column styling
@@ -106,7 +105,7 @@ function TotalOrders({ user }) {
 			) :
 				(
 					<>
-						<Container fluid className="pt-0 p-5">
+						<Container fluid className="pt-0 p-5 mt-5">
 							<div className="d-flex align-items-center heading-container">
 								<Link to='/products'><ArrowLeft /></Link>
 								<h1 className="cart-heading ms-1" >Orders</h1>
@@ -125,7 +124,13 @@ function TotalOrders({ user }) {
 							/>
 
 						</Container>
-						{show && <OffCanvasComp placement={'end'} show={show} setShow={setShow} orderItem={orderItem} user={user} />}
+						{show && <OffCanvasComp 
+							placement={'end'} 
+							show={show} 
+							setShow={setShow} 
+							orderItem={orderItem} 
+							name={user.name} 
+							token={user.token}/>}
 					</>
 				)}
 		</>

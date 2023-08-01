@@ -18,7 +18,13 @@ const UserSchema = new Schema({
   mobile: {
     type: String,
     required: true
-  }
+  },
+  role: {
+    type: String,
+    required: true,
+    enum: ['admin', 'customer'],
+    default: 'customer'
+  },
   // add more fields like profile picture, etc. as per your requirements
 },{
   timestamps:true

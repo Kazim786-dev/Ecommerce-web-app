@@ -11,7 +11,7 @@ import { ReactComponent as Bell } from '../../static/images/svg/Bell.svg'
 //componenets
 import NavDropdownComp from '../nav-dropdown'
 
-import { logout } from '../../redux/slice/auth/customer-slice'
+import { logout } from '../../redux/slice/auth/user-slice'
 import { empty } from '../../redux/slice/cart/cart-slice'
 
 import { useSelector, useDispatch } from 'react-redux'
@@ -26,17 +26,17 @@ const NavbarComp = ({
 
 	//drop down items
 	const dropdownItems = [
-		{ to: '/total-orders', label: 'Orders' },
-		'divider',
+		user.role!=='admin' && { to: '/total-orders', label: 'Orders' },
+		user.role!=='admin' && 'divider',
 		{ to: '/login', label: 'Logout', onClick: ()=>{
 			dispatch(logout())
 			dispatch(empty())
-		} 
 		}
-	]
+		}
+	].filter(Boolean); // Filter out undefined elements
 
 	return (
-		<Navbar bg="white" expand="lg" className="mb-5">
+		<Navbar bg="white" expand="lg" >
 			<Container fluid className="ps-1 pe-1 ms-5 me-5">
 				<Navbar.Brand>
 					<Link to="/" className="text-decoration-none navbar-heading">E-commerce</Link>
@@ -44,20 +44,22 @@ const NavbarComp = ({
 				<Navbar.Toggle aria-controls="navbar-nav" />
 				<Navbar.Collapse id="navbar-nav">
 					<Nav className="ms-auto align-items-center">
-						<Link to="/cart" className="me-4">
-							<div style={{ position: 'relative' }}>
-								<Bag />
-								{cartProducts.length > 0 &&
+						{ user.role!=='admin' &&
+							<Link to="/cart" className="me-4">
+								<div style={{ position: 'relative' }}>
+									<Bag />
+									{cartProducts.length > 0 &&
 									<Badge className='position-absolute translate-middle rounded-circle'>{cartProducts.length}
 									</Badge>
-								}
+									}
 
-							</div>
-						</Link>
+								</div>
+							</Link>
+						}
 						<Link className="me-4">
 							<Bell />
 						</Link>
-						{user.name !== '' ?
+						{user.isLoggedIn ?
 							(<>
 								<NavDropdownComp title={<span style={{ color: 'blue' }}>{user.name}</span>} items={dropdownItems} />
 								<Image

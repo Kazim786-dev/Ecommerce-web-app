@@ -11,13 +11,11 @@ import { useSelector } from 'react-redux'
 
 const App = () => {
 
-	// const userName = 'Johnson Charles'
-
-	const customer = useSelector((state)=> state.customer)
+	const user = useSelector((state)=> state.user)
 	
 	return (
 		<div className="App">
-			<RouterLinks user={customer} ></RouterLinks>
+			<RouterLinks user={user} ></RouterLinks>
 		</div>
 	)
 }

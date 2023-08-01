@@ -2,6 +2,10 @@ import Category from '../../models/category/index.js';
 
 // Controller functions
 const getAllCategories = async (req, res) => {
+  const {role} = req.user.user
+  if(role!=='admin'){
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   try {
     const categories = await Category.find();
     res.json(categories);
@@ -11,6 +15,10 @@ const getAllCategories = async (req, res) => {
 };
 
 const getCategoryById = async (req, res) => {
+  const {role} = req.user.user
+  if(role!=='admin'){
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   const { id } = req.params;
   try {
     const category = await Category.findById(id);
@@ -25,6 +33,10 @@ const getCategoryById = async (req, res) => {
 };
 
 const createCategory = async (req, res) => {
+  const {role} = req.user.user
+  if(role!=='admin'){
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   const { name } = req.body;
   try {
     const newCategory = new Category({
@@ -38,6 +50,10 @@ const createCategory = async (req, res) => {
 };
 
 const updateCategory = async (req, res) => {
+  const {role} = req.user.user
+  if(role!=='admin'){
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   const { id } = req.params;
   const { name } = req.body;
   try {
@@ -55,6 +71,10 @@ const updateCategory = async (req, res) => {
 };
 
 const deleteCategory = async (req, res) => {
+  const {role} = req.user.user
+  if(role!=='admin'){
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   const { id } = req.params;
   try {
     const category = await Category.findById(id);

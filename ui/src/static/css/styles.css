@@ -1,4 +1,7 @@
 
+.pointer-cursor {
+  cursor: pointer;
+}
 
 .auth-form-container{
     margin-top:6.25rem;
@@ -38,10 +41,10 @@
 
 .navbar-heading {
   font-size: 16px;
-font-family: Inter;
-font-style: normal;
-font-weight: 700;
-color: #343A40;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 700;
+  color: #343A40;
 }
 
 /* product card */
@@ -59,7 +62,7 @@ color: #343A40;
 
 .table-product-img{
   height: 29.695px;
-    width: 29.695px;
+  width: 29.695px;
 }
 
 /* cart page */
@@ -123,63 +126,12 @@ color: #343A40;
     transform: translateX(2);
   }
   
-  
-
-  /* Drawer comp */
-
-  
-
-  .drawer {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    overflow-x: hidden;
-    /* transition: width 0.3s ease-out; */
-    z-index: 9999;
+  .order-summary-element{
+    width: 30%;
   }
-  
-  .drawer.open {
-    width: 100%;
+  .order-summary-element p {
+    color:#5A5F7D;
+    font-size: 12.8px;
+    font-weight: 400px;
+    font-family: Inter;
   }
-  
-  .drawer-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* backdrop-filter: blur(5px); */
-    z-index: 9998;
-  }
-  
-  .drawer-content {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 80%;
-    max-width: 70em;
-    background-color: #fff;
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
-    transform: translateX(100%);
-    transition: transform 0.3s ease-out;
-    z-index: 9999;
-  }
-  
-  .drawer.open .drawer-content {
-    transform: translateX(0);
-  }
-  
-  .drawer-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  

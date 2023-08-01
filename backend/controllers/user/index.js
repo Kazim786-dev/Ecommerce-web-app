@@ -57,11 +57,31 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   const { id } = req.params;
   const { name, email, password, mobile } = req.body;
+
+  // Define the regex patterns for validation
+  const capitalRegex = /[A-Z]/;
+  const smallRegex = /[a-z]/;
+  const digitRegex = /[0-9]/;
+  const symbol = /[!@#$%^&*]/;
+
+  // Check if the password meets all validation criteria
+  if (
+    !capitalRegex.test(password) ||
+    !smallRegex.test(password) ||
+    !digitRegex.test(password) ||
+    !symbol.test(password) ||
+    password.length < 4
+  ) {
+    return res.status(400).json({
+      error: 'Password must contain at least 1 capital letter, 1 small letter, 1 digit, 1 symbol, and be at least 8 characters long.',
+    });
+  }
+
+
   try {
     const user = await User.findById(id);
     if (user) {
       user.name = name || user.name;
-      user.email = email || user.email;
       user.password = password || user.password;
       user.mobile = mobile || user.mobile;
       const updatedUser = await user.save();

@@ -14,7 +14,7 @@ import { ReactComponent as Trash } from '../../static/images/svg/Trash.svg'
 //components
 import AlertComp from '../../components/alert'
 import CustomButton from '../../components/button'
-import CartTable from '../../components/table'
+import DetailsTable from '../../components/table'
 import DeleteConfirmationModal from '../../components/modal/delete-confirmation'
 import SpinnerComp from '../../components/spinner'
 
@@ -242,13 +242,13 @@ const ShoppingCart = ({ user }) => {
 				<SpinnerComp />
 			) : (
 
-				<Container fluid className="pt-0 p-5">
+				<Container fluid className="pt-0 p-5 mt-5">
 					<div className="d-flex align-items-center heading-container">
 						<Link to='/products'><ArrowLeft style={{ cursor: 'pointer' }} /></Link>
 						<h1 className="cart-heading ">Your Shopping Bag</h1>
 					</div>
 
-					<CartTable data={cartItems} columns={columns} />
+					<DetailsTable data={cartItems} columns={columns} />
 
 					<div className="total-container">
 						<div ><p>Sub Total:</p><b>${calculateSubTotal.toFixed(2)}</b></div>

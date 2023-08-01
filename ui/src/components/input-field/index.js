@@ -11,17 +11,19 @@ const FormField = ({
 	label, 
 	name, 
 	value, 
-	type, 
+	type,
+	as,
 	onBlur, 
 	placeholder, 
 	onChange, 
 	children }) => {
     
 	return (
-		<Form.Group controlId={controlId}>
+		<Form.Group controlId={controlId} className={className}>
 			<Form.Label className="text-styles input-field">{label}</Form.Label>
 			<Form.Control
 				type={type}
+				as={as}
 				placeholder={placeholder}
 				name={name}
 				value={value}
