@@ -22,7 +22,7 @@ const {devPort}= process.env
 app.use('/auth', authRouter)
 app.use('/users' ,userRouter)
 app.use('/products' ,productRouter)
-app.use('/category',authMiddleware, categoryRouter)
+// app.use('/category',authMiddleware, categoryRouter)
 app.use('/orders',authMiddleware ,orderRouter)
 
 app.listen(devPort, () => {

@@ -142,38 +142,36 @@ const getAllOrderProducts = async (req, res) => {
     res.status(500).json({ error: 'Error fetching products' });
   }
 }
+//   const {id} = req.query
+//   if(!id){
+//     return res.status(400).json({error:"Bad request"})
+//   }
 
-const getOrderByNumber = async (req, res) => {
-  const {id} = req.query
-  if(!id){
-    return res.status(400).json({error:"Bad request"})
-  }
+//   try {
+//     const order = await Order.findOne({orderNumber:id})
 
-  try {
-    const order = await Order.findOne({orderNumber:id})
+//     if (order) {
+//       const totalPages = 1
+//       const user = await User.findById(order.user)
 
-    if (order) {
-      const totalPages = 1
-      const user = await User.findById(order.user)
+//       const ordersWithUser = [
+//         {
+//           ...order.toObject(),
+//           user:user
+//         }
+//       ]
+//       return res.status(200).json({
+//         data: ordersWithUser,
+//         totalPages
+//       });
 
-      const ordersWithUser = [
-        {
-          ...order.toObject(),
-          user:user
-        }
-      ]
-      return res.status(200).json({
-        data: ordersWithUser,
-        totalPages
-      });
-
-    } else {
-      getOrdersByUserName(req, res)
-    }
-  } catch (error) {
-    return res.status(500).json({ error: 'Error occurred while fetching the order.' });
-  }
-};
+//     } else {
+//       getOrdersByUserName(req, res)
+//     }
+//   } catch (error) {
+//     return res.status(500).json({ error: 'Error occurred while fetching the order.' });
+//   }
+// };
 
 const getOrderSummary = async (req, res) => {
   try {

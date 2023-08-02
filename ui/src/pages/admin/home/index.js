@@ -107,6 +107,7 @@ const AllProducts = ({ user }) => {
                 }
             ).then((response) => {
                 if (response.status === 200) {
+                    setCurrentPage(1)
                     fetchData()
                 }
                 setLoading(false)
@@ -132,6 +133,7 @@ const AllProducts = ({ user }) => {
     }
 
     const handleItemClick = (item) => {
+        setCurrentPage(1)
         setSelectedItem(item)
     }
 
