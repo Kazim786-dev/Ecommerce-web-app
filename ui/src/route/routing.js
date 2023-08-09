@@ -43,7 +43,7 @@ const RouterLinks = ({
 					path='/signup'
 					element={
 						<Layout user={user} showNavbar={false}>
-							{<SignUpPage />}
+							{!user.isLoggedIn ? <SignUpPage /> : <Navigate to='/' /> }
 						</Layout>
 					}
 				/>

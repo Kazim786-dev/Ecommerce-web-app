@@ -8,7 +8,7 @@ import thunk from 'redux-thunk'
 import cartReducer from '../slice/cart/cart-slice'
 import usererReducer from '../slice/auth/user-slice'
 
-import { logout } from '../slice/auth/user-slice';
+import { logout } from '../slice/auth/user-slice'
 
 // const isRememberedMeClicked = () => {
 // 	const persistedData = localStorage.getItem('persist:root')
@@ -26,16 +26,16 @@ import { logout } from '../slice/auth/user-slice';
 // Middleware to check the last login time and dispatch the logout action if needed
 const expirationMiddleware = (store) => (next) => (action) => {
 	// Get the current timestamp
-	const currentTime = Date.now();
+	const currentTime = Date.now()
 
 	// Get the last login time from the state
-	const lastLoginTime = store.getState().user.lastLoginTime;
+	const lastLoginTime = store.getState().user.lastLoginTime
 	if (lastLoginTime && currentTime - lastLoginTime >= 3 * 60 * 60 * 1000) {
-		store.dispatch(logout());
+		store.dispatch(logout())
 	}
 	// Call the next middleware in the chain
-	return next(action);
-};
+	return next(action)
+}
 
 
 const persistConfig = {
@@ -52,7 +52,8 @@ const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 export const store = configureStore({
 	reducer: persistedReducer,
-	middleware: [thunk, expirationMiddleware],
+	middleware: [thunk]
+	// middleware: [thunk, expirationMiddleware],
 })
 
 export const persistor = persistStore(store)

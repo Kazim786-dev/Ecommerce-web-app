@@ -33,7 +33,7 @@ const NavbarComp = ({
 			dispatch(empty())
 		}
 		}
-	].filter(Boolean); // Filter out undefined elements
+	].filter(Boolean) // Filter out undefined elements
 
 	return (
 		<Navbar bg="white" expand="lg" >

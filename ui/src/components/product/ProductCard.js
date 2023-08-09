@@ -41,8 +41,8 @@ const ProductCard = ({
 								</Button>
 							) :
 								addedToCart ? (
-									<Button variant="primary" disabled>
-									Already added
+									<Button variant="primary" onClick={handleAddToCart}>
+									Added
 									</Button>
 								) : (
 									<Button variant="primary" onClick={handleAddToCart}>

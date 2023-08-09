@@ -9,7 +9,8 @@ const DetailsTable = ({
 
 
 	return (
-		<Table borderless responsive>
+		
+		<Table borderless responsive >
 			<thead>
 				<tr>
 					{columns.map((column, index) => (
@@ -21,15 +22,15 @@ const DetailsTable = ({
 			</thead>
 			<tbody>
 				{data.length > 0 &&
-					data.map((item, index) => (
-						<tr key={index}>
-							{columns.map((column, index) => (
-								<td key={index} style={{ width: column.width }}>
-									{column.render(item)}
-								</td>
-							))}
-						</tr>
-					))}
+						data.map((item, index) => (
+							<tr key={index}>
+								{columns.map((column, index) => (
+									<td key={index} style={{ width: column.width }}>
+										{column.render(item)}
+									</td>
+								))}
+							</tr>
+						))}
 			</tbody>
 		</Table>
 	)

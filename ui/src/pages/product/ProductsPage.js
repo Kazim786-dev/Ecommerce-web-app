@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import debounce from 'lodash.debounce'
 
@@ -14,11 +14,12 @@ import SpinnerComp from '../../components/spinner'
 //redux
 import { useSelector, useDispatch } from 'react-redux'
 //actions
-import { add } from '../../redux/slice/cart/cart-slice'
+import { add, increase } from '../../redux/slice/cart/cart-slice'
 
 const AllProductsPage = ({ user }) => {
 
 	const dispatch = useDispatch()
+	const searchInputRef = useRef(null)
 
 	//states
 	const [searchTerm, setSearchTerm] = useState('')
@@ -40,11 +41,18 @@ const AllProductsPage = ({ user }) => {
 
 	useEffect(() => {
 		debouncedFetchData()
+		
 		// Cleanup the debounced function when the component is unmounted
 		return () => {
 			debouncedFetchData.cancel()
 		}
 	}, [currentPage, priceFilter, searchTerm])
+
+	useEffect(()=>{
+		if(searchInputRef.current){
+			searchInputRef.current.focus()
+		}	
+	})
 
 	const fetchProducts = async () => {
 		let response = ''
@@ -55,18 +63,28 @@ const AllProductsPage = ({ user }) => {
 			response = await axios.get(
 				`${process.env.REACT_APP_DEV_BACKEND_URL}/products?page=${currentPage}&size=${pageSize}&sort=${priceFilter}&name=${searchTerm}`
 			)
-			if (response.status === 200) {
+			if (response.status && response.status === 200) {
 				const { totalPages, data } = response.data
 				setProducts(data)
 				setTotalPages(totalPages)
+				setTimeout(() => {
+					setLoading(false)
+				}, 1000)
 			}
 			else {
 				setFetchProductError(true)
 				setErrorText('Error in fetching products')
+				setTimeout(() => {
+					setLoading(false)
+				}, 1000)
 			}
 
 		} catch (error) {
-			if (error.response.status === 404) {
+			setTimeout(() => {
+				setLoading(false)
+			}, 1000)
+
+			if (error.response?.status && error.response.status === 404) {
 				setErrorText('No product with this name')
 			}
 			else {
@@ -75,7 +93,7 @@ const AllProductsPage = ({ user }) => {
 			setFetchProductError(true)
 			// console.error('Error fetching data:', error)
 		}
-		setLoading(false)
+		
 	}
 
 	// Debounced version of fetchProducts
@@ -99,6 +117,9 @@ const AllProductsPage = ({ user }) => {
 			dispatch(add(item))
 			setAddedToCart(true)
 		}
+		else{
+			dispatch(increase(product._id))
+		}
 	}
 
 	const isAlreadyAdded = (product) => {
@@ -115,41 +136,49 @@ const AllProductsPage = ({ user }) => {
 					<>
 						<Container fluid className='pt-0 p-5 mt-5'>
 
-							<Row className="mb-3 m-0 ps-1 pe-1" >
-								<Col className="d-flex justify-content-start ps-0">
-									<h2 className="text-primary">All Products</h2>
+							<Row className='mb-3 m-0 ps-1 pe-1' >
+								<Col className='d-flex justify-content-start ps-0'>
+									<h2 className='text-primary'>All Products</h2>
 								</Col>
-								<Col md="auto" className="d-flex align-items-center">
-									<Form.Label className="me-2"><b>Search:</b></Form.Label>
-									<Form.Group className="mb-1">
-										<Form.Control type="text" value={searchTerm} placeholder="Search by name" onChange={handleSearchChange} />
+								<Col md='auto' className='d-flex align-items-center'>
+									<Form.Label className='me-2'><b>Search:</b></Form.Label>
+									<Form.Group className='mb-1'>
+										<Form.Control 
+											type='text' 
+											value={searchTerm} 
+											placeholder='Search by name' 
+											onChange={handleSearchChange} 
+											ref={searchInputRef}
+										/>
 									</Form.Group>
 								</Col>
-								<Col md="auto" className="d-flex align-items-center pe-0">
-									<Form.Label className="me-2"><b>Sort by:</b></Form.Label>
-									<Form.Group className="mb-1">
+								<Col md='auto' className='d-flex align-items-center pe-0'>
+									<Form.Label className='me-2'><b>Sort by:</b></Form.Label>
+									<Form.Group className='mb-1'>
 										<Form.Select value={priceFilter} onChange={handlePriceFilterChange}>
-											<option value="asc">Low to High</option>
-											<option value="desc">High to Low</option>
+											<option value='asc'>Low to High</option>
+											<option value='desc'>High to Low</option>
 										</Form.Select>
 									</Form.Group>
 								</Col>
 							</Row>
 
-							{/*Map all products */}
-							<Row className="justify-content-center">
-								{/* Desktop: Display 4 products per row 
+							<div style={{minHeight:'60vh'}}>
+								{/*Map all products */}
+								<Row className='justify-content-center'>
+									{/* Desktop: Display 4 products per row 
 									Tablet: 2 Products per row
 									Mobile: 1 product per row */}
-								{products.map((product, index) => (
-									<Col key={index} xl={3} lg={6} md={6} sm={12} className="d-flex justify-content-center ps-0 pe-0 mb-5">
-										<div>
-											<ProductCard name={user.name} product={product} addToCart={addToCart} addedToCart={isAlreadyAdded(product)} />
-										</div>
-									</Col>
-								))}
+									{products.map((product, index) => (
+										<Col key={index} xl={3} lg={6} md={6} sm={12} className='d-flex justify-content-center ps-0 pe-0 mb-5'>
+											<div>
+												<ProductCard name={user.name} product={product} addToCart={addToCart} addedToCart={isAlreadyAdded(product)} />
+											</div>
+										</Col>
+									))}
 
-							</Row>
+								</Row>
+							</div>
 
 							<Footer className={'d-flex justify-content-between align-items-center ps-1 pe-1'}
 								text={`${products.length} products found in clothing and accessories`}
@@ -159,7 +188,7 @@ const AllProductsPage = ({ user }) => {
 							/>
 							{fetchProductError && (
 								<AlertComp
-									variant="danger"
+									variant='danger'
 									text={errorText}
 									onClose={() => setFetchProductError(false)}
 								/>

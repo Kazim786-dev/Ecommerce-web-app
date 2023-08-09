@@ -40,8 +40,7 @@ const NewPassPage = () => {
 			try {
 				// Send the token and new password in the request body
 				const response = await axios.patch(`${process.env.REACT_APP_DEV_BACKEND_URL}/users/update-password`, { token, newPassword: formData.password })
-				console.log(response)
-				if (response.status === 200) {
+				if (response.status && response.status === 200) {
 					setShowAlert(true)
 				}
 			} catch (error) {
@@ -112,10 +111,11 @@ const NewPassPage = () => {
 						variant="primary"
 						type="submit"
 						className="w-100"
-						isDisabled={passwordError!==''
-							|| formData.password === ''
-							|| formData.password !== formData.confirmPassword
-						}>
+						// isDisabled={passwordError!==''
+						// 	|| formData.password === ''
+						// 	|| formData.password !== formData.confirmPassword
+						// }
+					>
 						Reset Password
 					</CustomButton>
 				</Row>

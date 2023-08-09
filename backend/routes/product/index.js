@@ -1,27 +1,82 @@
-import { Router } from 'express';
+import { Router, response } from 'express';
 import upload from '../../middleware/multer.js';
-import multer from 'multer';
-const updateupload=multer()
+import VerifyRole from '../../middleware/role-verification.js';
 
-import { 
-    getProducts, 
-    getProductById, 
-    createProduct, 
-    updateProduct, 
-    deleteProduct,
+import multer from 'multer';
+const updateupload = multer()
+
+import {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 } from '../../controllers/product/index.js';
+
 import authMiddleware from '../../middleware/auth.js'
 
 const router = Router();
 
-// Product routes
-router.get('/', getProducts);
-router.get('/:id',authMiddleware, getProductById);
+// Get Products
+router.get('/', async (req, res) => {
+  try {
+    const result = await getProducts({query: req.query});
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
 
-// Use the multer middleware to handle the form data (after this iddleware all form data will be in request body)
-router.post('/',authMiddleware, upload, createProduct);
-router.put('/:id',authMiddleware, upload, updateProduct);
+// Get Product by ID
+router.get('/:id', authMiddleware, async (req, res) => {
+  const { id } = req.params;
 
-router.delete('/:id',authMiddleware, deleteProduct);
+  try {
+    const result = await getProductById({id: id});
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    return res.status(500).json({ error: 'An error occurred while fetching the product.' });
+  }
+});
+
+// Create Product
+router.post('/', authMiddleware, VerifyRole({ roleToCheck: 'admin' }), upload, async (req, res) => {
+  const { user } = req.user;
+
+  try {
+    const result = await createProduct({productData: req.body, imageFile: req.file, user: user});
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ error: 'An error occurred while creating the product.' });
+  }
+});
+
+// Update Product
+router.put('/:id', authMiddleware, VerifyRole({ roleToCheck: 'admin' }), upload, async (req, res) => {
+  const { id } = req.params;
+  const { user } = req.user;
+
+  try {
+    const result = await updateProduct({id: id, productData: req.body, imageFile: req.file, user: user});
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    return res.status(500).json({ error: 'An error occurred while updating the product.' });
+  }
+});
+
+// Delete Product
+router.delete('/:id', authMiddleware, VerifyRole({ roleToCheck: 'admin' }), async (req, res) => {
+  const { id } = req.params;
+  const { user } = req.user;
+
+  try {
+    const result = await deleteProduct({id: id , user: user});
+    return res.status(result.status).json(result.message);
+  } catch (error) {
+    return res.status(500).json({ error: 'An error occurred while deleting the product.' });
+  }
+});
+
 
 export default router;

@@ -46,15 +46,21 @@ function TotalOrders({ user }) {
 					},
 				}
 			)
-			if (response.status === 200) {
+			if (response.status && response.status === 200) {
 				const { totalPages, data } = response.data
 				setOrderItems(data)
 				setTotalPages(totalPages)
+				setTimeout(() => {
+					setLoading(false)
+				}, 1000)
 			}
 		} catch (error) {
+			setTimeout(() => {
+				setLoading(false)
+			}, 1000)
 			console.error('Error fetching data:', error)
 		}
-		setLoading(false)
+		
 	}
 
 	// table column styling
@@ -64,7 +70,8 @@ function TotalOrders({ user }) {
 			width: '17rem',
 			render: (item) => {
 				const date = new Date(item.date)
-				const utcDate = date.toLocaleString('en-US', { timeZone: 'UTC' })
+				const utcDate = date.toLocaleString(undefined, { timeZoneName: 'short' })
+				
 				return utcDate
 			}
 		},
@@ -111,7 +118,9 @@ function TotalOrders({ user }) {
 								<h1 className="cart-heading ms-1" >Orders</h1>
 							</div>
 
-							<DetailsTable data={orderItems} columns={columns} />
+							<div style={{ height: '24rem', overflowY: 'auto' }}>
+								<DetailsTable data={orderItems} columns={columns} />
+							</div>
 
 							<Footer 
 								className={'d-flex justify-content-between align-items-center pt-3'}

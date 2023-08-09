@@ -8,6 +8,7 @@ import Pagination from 'react-bootstrap/Pagination'
 
 const PaginationComp = ({totalPages, currentPage, setCurrentPage }) => {
 
+
 	const goToPage = (page) => {
 		setCurrentPage(page)
 	}

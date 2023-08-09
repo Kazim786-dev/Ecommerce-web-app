@@ -25,6 +25,8 @@ const OffCanvasComp = ({
 
 	const date = new Date(orderItem.date)
 	const utcDate = date.toLocaleString('en-US', { timeZone: 'UTC' })
+	const localDate = date.toLocaleString(undefined, { timeZoneName: 'short' })
+
 
 	useEffect(()=>{
 		fetchProducts()
@@ -46,7 +48,7 @@ const OffCanvasComp = ({
 					}
 				)
 
-				if(response.status===200){
+				if(response.status && response.status===200){
 					setOrderProducts(response.data)
 				}
 				setLoading(false)
@@ -85,11 +87,11 @@ const OffCanvasComp = ({
 			width: '22rem',
 			render: (product) => product.quantity,
 		},
-		{
-			header: 'Stock',
-			width: '15rem',
-			render: (product) => product.quantity
-		},
+		// {
+		// 	header: 'Stock',
+		// 	width: '15rem',
+		// 	render: (product) => product.quantity
+		// },
 	]
 
 	return (
@@ -108,7 +110,7 @@ const OffCanvasComp = ({
 								<hr />
 								<Row className="order-info-row pt-1 pb-2">
 									<Col>
-										<p className='text-styles'>Order Date:</p> {utcDate}
+										<p className='text-styles'>Order Date:</p> {localDate}
 									</Col>
 									<Col>
 										<p className='text-styles'>Order #:</p> {orderItem.orderNumber}
@@ -127,8 +129,9 @@ const OffCanvasComp = ({
 								<div className="d-flex align-items-center heading-container">
 									<h4>Product Information</h4>
 								</div>
-
-								<DetailsTable data={OrderProducts} columns={columns} />
+								<div style={{ height: '22.5rem', overflowY: 'auto'}}>
+									<DetailsTable data={OrderProducts} columns={columns} />
+								</div>
 
 							</Container>
 						</Offcanvas.Body>

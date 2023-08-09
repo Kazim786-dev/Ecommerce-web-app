@@ -105,66 +105,42 @@ const ShoppingCart = ({ user }) => {
 				setOrderError(false)
 				setErrorText('')
 				navigate('/total-orders')
+				setTimeout(() => {
+					setLoading(false)
+				}, 1000)
 			} else {
 				setOrderError(true)
 				setErrorText('Error occured in placing the order')
 				setOrderPlaced(false)
+				setTimeout(() => {
+					setLoading(false)
+				}, 1000)
 			}
 
 		} catch (error) {
 			setOrderError(true)
 			setErrorText('Error occured in placing the order')
 			setOrderPlaced(false)
+			setTimeout(() => {
+				setLoading(false)
+			}, 1000)
 		}
 
-		setLoading(false)
+		
 
-		// Handle place order logic
-		// try {
-		// 	setLoading(true)
-		// 	const products = cartItems.map((product) => ({
-		// 		product: product._id,
-		// 		quantity: product.orderQuantity,
-		// 	}))
-
-		// 	const response = await axios.post(
-		// 		`${process.env.REACT_APP_DEV_BACKEND_URL}/orders`,
-		// 		{
-		// 			products,
-		// 			totalAmount: total.toFixed(2),
-		// 			status: 'Pending',
-		// 		},
-		// 		{
-		// 			headers: {
-		// 				Authorization: `Bearer ${user.token}`,
-		// 			},
-		// 		}
-		// 	)
-
-		// 	if (response.status === 201) {
-		// 		setOrderPlaced(true)
-		// 		dispatch(empty())
-		// 		navigate('/total-orders')
-		// 	}
-		// 	setLoading(false)
-
-		// } catch (error) {
-		// 	console.log(error)
-		// 	setOrderPlaced(false)
-		// }
 	}
 
 	// table column styling
 	const columns = [
-		{
-			header: (
-				<Form.Check type="checkbox" />
-			),
-			width: '10px',
-			render: () => (
-				<Form.Check type="checkbox" />
-			),
-		},
+		// {
+		// 	header: (
+		// 		<Form.Check type="checkbox" />
+		// 	),
+		// 	width: '10px',
+		// 	render: () => (
+		// 		<Form.Check type="checkbox" />
+		// 	),
+		// },
 		{
 			header: 'Product',
 			width: '25rem',
@@ -248,7 +224,9 @@ const ShoppingCart = ({ user }) => {
 						<h1 className="cart-heading ">Your Shopping Bag</h1>
 					</div>
 
-					<DetailsTable data={cartItems} columns={columns} />
+					<div style={{ height: '19rem', overflowY: 'auto' }}>
+						<DetailsTable data={cartItems} columns={columns} />
+					</div>
 
 					<div className="total-container">
 						<div ><p>Sub Total:</p><b>${calculateSubTotal.toFixed(2)}</b></div>

@@ -1,11 +1,9 @@
-import User from './user/index'
-import Category from './category/index'
-import Product from './product/index'
-import Order from './order/index'
+import User from './order'
+import Product from './product'
+import Order from './order'
 
 module.exports = {
     User,
-    Category,
     Product,
     Order,
 };

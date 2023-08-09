@@ -19,23 +19,35 @@ function ForgetPasswordPage() {
 	//states
 	const [email, setEmail] = useState('')
 	const [emailError, setEmailError] = useState('')
+	const [alertText, setAlertText] = useState('')
+	const [variant, setVariant] = useState()
 	const [showAlert, setShowAlert] = useState(false)
 
 	const handleSubmit = async(e) => {
 		e.preventDefault()
 		// Perform login logic here
-
+		if(validateEmail()==false){
+			return
+		}
 		try {
 			const res = await axios.post(`${process.env.REACT_APP_DEV_BACKEND_URL}/users/verify-mail`, {
 				email: email
 			})
 
-			console.log(res)
-			if(res.status===200){
+			if(res.status && res.status===200){
+				setAlertText('Reset Password Instructions has been sent to your email address.')
 				setShowAlert(true)
+				setVariant('success')
 			}
 		} catch (error) {
-			console.log(error)
+			setVariant('danger')
+			if(error.response?.status && error.response.status===404){
+				setAlertText('User not found')
+			}
+			else{
+				setAlertText('Error occured')
+			}
+			setShowAlert(true)
 		}
 
 		//clear all fields
@@ -48,11 +60,14 @@ function ForgetPasswordPage() {
 			setEmailError('Enter a valid email address')
 		} else {
 			setEmailError('')
+			return true
 		}
+		return false
 	}
 
 	const handleEmailChange = (e) => {
 		setEmail(e.target.value)
+		setEmailError('')
 	}
 
 	return (
@@ -66,14 +81,15 @@ function ForgetPasswordPage() {
 						placeholder="Please enter your email"
 						value={email}
 						onChange={handleEmailChange}
-						onBlur={validateEmail}
 					/>
 					{emailError && <p className="text-danger">{emailError}</p>}
 
 				</Row>
                 
 				<Row className='m-0 mt-4'>
-					<CustomButton variant="primary" type="submit" className="w-100" isDisabled={emailError!=='' || email==''}>
+					<CustomButton variant="primary" type="submit" className="w-100" 
+						// isDisabled={emailError!=='' || email==''}
+					>
                         Forgot Password
 					</CustomButton>
 				</Row>
@@ -86,8 +102,8 @@ function ForgetPasswordPage() {
 
 			{showAlert && (
 				<AlertComp 
-					variant="success" 
-					text="Reset Password Instructions has been sent to your email address." 
+					variant={variant} 
+					text={alertText}
 					onClose={() => setShowAlert(false)}
 				/>
 			)}

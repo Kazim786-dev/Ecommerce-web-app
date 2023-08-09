@@ -28,7 +28,7 @@ export const userSlice = createSlice({
 			state.isLoggedIn = true
 
 			// Update lastLoginTime with the current timestamp
-			state.lastLoginTime = Date.now();
+			state.lastLoginTime = Date.now()
 		},
 		logout:(state) => {
 			Object.assign(state, user)

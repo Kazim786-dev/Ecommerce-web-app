@@ -5,7 +5,7 @@ import axios from 'axios'
 import { Form, Row, Col } from 'react-bootstrap'
 
 //react-router-dom
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 //components
 import AlertComp from '../../components/alert'
@@ -15,6 +15,8 @@ import FormContainer from '../../components/formContainer'
 
 //function based component
 function SignUpPage() {
+
+	const navigate = useNavigate()
 	const [formData, setFormData] = useState({
 		name: '',
 		email: '',
@@ -23,11 +25,24 @@ function SignUpPage() {
 	})
 	const [emailError, setEmailError] = useState('')
 	const [passwordError, setPasswordError] = useState('')
+	const [nameError, setNameError] = useState('')
 	const [showAlert, setShowAlert] = useState(false)
+	const [alertText, setAlertText] = useState('')
 
 	const handleSubmit = async (e) => {
 		e.preventDefault()
-		validatePassword()
+		setShowAlert(false)
+		setAlertText('')
+
+		if(validateEmail()==false || validatePassword()==false ){
+			return
+		}
+
+		// Name validation: Check if name is not empty and has at least 3 characters (excluding spaces)
+		if (formData.name.trim().length < 3) {
+			setNameError('Name should contain at least 3 letters (excluding spaces).')
+			return
+		}
 
 		try {
 			const res = await axios.post(`${process.env.REACT_APP_DEV_BACKEND_URL}/auth/signup`, {
@@ -36,12 +51,19 @@ function SignUpPage() {
 				password: formData.password,
 				mobile: formData.mobile,
 			})
-			if (res.status===201) {
-				setShowAlert(true)
+			if (res.status && res.status === 201) {
+				navigate('/login')
 			}
 		}
 		catch (error) {
-			setShowAlert(false)
+			if (error.response && error.response.data && error.response.data.message) {
+				setAlertText(error.response.data.message)
+				setShowAlert(true)
+			}
+			else{
+				setAlertText('Something went wrong!')
+				setShowAlert(true)
+			}
 		}
 
 		setFormData({
@@ -61,14 +83,16 @@ function SignUpPage() {
 			setEmailError('Enter a valid email address')
 		} else {
 			setEmailError('')
+			return true
 		}
+		return false
 	}
 
 	const validatePassword = () => {
 		const hasUppercase = /[A-Z]/.test(formData.password)
 		const hasLowercase = /[a-z]/.test(formData.password)
 		const hasNumber = /\d/.test(formData.password)
-		const hasSymbol = /[!@#$%^&*]/.test(formData.password)
+		const hasSymbol = /[~`!@#$%^&*()-_+=]/.test(formData.password)
 
 		if (!(hasUppercase && hasLowercase && hasNumber && hasSymbol)) {
 			setPasswordError(
@@ -76,7 +100,9 @@ function SignUpPage() {
 			)
 		} else {
 			setPasswordError('')
+			return true
 		}
+		return false
 	}
 
 	const handleFieldChange = (e) => {
@@ -100,6 +126,7 @@ function SignUpPage() {
 						value={formData.name}
 						onChange={handleFieldChange}
 					/>
+					{nameError && <p className="text-danger">{nameError}</p>}
 				</Row>
 				<Row className="mt-3">
 					<FormField
@@ -110,7 +137,6 @@ function SignUpPage() {
 						name="email"
 						value={formData.email}
 						onChange={handleFieldChange}
-						onBlur={validateEmail}
 					/>
 					{emailError && <p className="text-danger">{emailError}</p>}
 				</Row>
@@ -123,7 +149,6 @@ function SignUpPage() {
 						name="password"
 						value={formData.password}
 						onChange={handleFieldChange}
-						onBlur={validatePassword}
 					/>
 					{passwordError && <p className="text-danger">{passwordError}</p>}
 				</Row>
@@ -131,7 +156,7 @@ function SignUpPage() {
 					<FormField
 						controlId="mobile"
 						label="Mobile"
-						type="number"
+						type="text"
 						placeholder="mobile number"
 						name="mobile"
 						value={formData.mobile}
@@ -139,14 +164,15 @@ function SignUpPage() {
 					/>
 				</Row>
 				<Row className="m-0 mt-4">
-					<CustomButton variant="primary" type="submit" className="w-100" isDisabled={
-						emailError !== '' ||
-						passwordError !== '' ||
-						formData.email == '' ||
-						formData.password == '' ||
-						formData.name == '' ||
-						formData.mobile == ''
-					}>
+					<CustomButton variant="primary" type="submit" className="w-100" 
+						// isDisabled={
+						// 	emailError !== '' ||
+						// 	passwordError !== '' ||
+						// 	formData.email == '' ||
+						// 	formData.password == '' ||
+						// 	formData.name == '' ||
+						// 	formData.mobile == ''}
+					>
 						SignUp
 					</CustomButton>
 				</Row>
@@ -154,7 +180,7 @@ function SignUpPage() {
 					<Col>
 						<p className="text-center mb-0 text-styles">
 							Already have an account!{' '}
-							<Link to="/" className="text-decoration-none">
+							<Link to="/login" className="text-decoration-none">
 								Login
 							</Link>
 						</p>
@@ -164,8 +190,8 @@ function SignUpPage() {
 
 			{showAlert && (
 				<AlertComp
-					variant="success"
-					text="Your account has been created. Instruction sent to your email id."
+					variant="danger"
+					text = {alertText}
 					onClose={() => setShowAlert(false)}
 				/>
 			)}

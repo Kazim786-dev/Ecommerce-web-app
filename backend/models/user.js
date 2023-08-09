@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt';
 
 const UserSchema = new Schema({
   name: {
@@ -26,8 +26,8 @@ const UserSchema = new Schema({
     default: 'customer'
   },
   // add more fields like profile picture, etc. as per your requirements
-},{
-  timestamps:true
+},{ 
+  timestamps: true
 });
 
 UserSchema.pre(

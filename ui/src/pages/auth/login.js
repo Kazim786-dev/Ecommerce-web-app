@@ -38,6 +38,10 @@ const LoginPage = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault()
 
+		if (validateEmail()==false){
+			return
+		}
+
 		try {
 			const res = await axios.post(`${process.env.REACT_APP_DEV_BACKEND_URL}/auth/signin`, {
 				email: email,
@@ -74,11 +78,16 @@ const LoginPage = () => {
 			setEmailError('Enter a valid email address')
 		} else {
 			setEmailError('')
+			return true
 		}
+		return false
 	}
 
 	const handleFieldChange = (e) => {
 		const { name, value } = e.target
+		if(name=='email'){
+			setEmailError('')
+		}
 		setFormData({
 			...formData,
 			[name]: value,
@@ -97,7 +106,6 @@ const LoginPage = () => {
 						name="email"
 						value={email}
 						onChange={handleFieldChange}
-						onBlur={validateEmail}
 					/>
 					{emailError && <p className="text-danger">{emailError}</p>}
 
@@ -119,7 +127,9 @@ const LoginPage = () => {
 					</Form.Group>
 				</Row>
 				<Row className='m-0 mt-4'>
-					<CustomButton variant="primary" type="submit" className="w-100" isDisabled={emailError !== '' || password == ''}>
+					<CustomButton variant="primary" type="submit" className="w-100" 
+						// isDisabled={emailError !== '' || password == ''}
+					>
 						Login
 					</CustomButton>
 				</Row>

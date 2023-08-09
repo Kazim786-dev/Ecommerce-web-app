@@ -3,7 +3,6 @@ import 'dotenv/config'
 //routes
 import userRouter from './routes/user/index.js'
 import productRouter from './routes/product/index.js'
-import categoryRouter from './routes/category/index.js'
 import orderRouter from './routes/order/index.js'
 import authRouter from './routes/auth/index.js'
 

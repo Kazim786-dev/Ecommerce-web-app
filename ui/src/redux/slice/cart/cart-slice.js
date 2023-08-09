@@ -61,7 +61,7 @@ export const placeOrder = (products, totalAmount, token) => async (dispatch) => 
 				},
 			}
 		)
-		if (response.status === 201) {
+		if (response.status && response.status === 201) {
 			dispatch(empty())
 			return true // Indicate successful order placement
 		}
